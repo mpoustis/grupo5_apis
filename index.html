@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios API</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <h1>Usuarios desde API</h1>
+    <button id="fetch-btn">Buscar usuarios</button>
+    
+    <table id="users-table" class="hidden">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Ciudad</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <!-- Los datos se insertan aquí dinámicamente -->
+      </tbody>
+    </table>
+  </main>
+  <script src="script.js" defer></script>
+</body>
+</html>
