@@ -1,25 +1,22 @@
 import "../styles/Header.css"
+import { Link } from 'react-router-dom';
 
 export function Header() {
   return (
     <header className="header">
       <div className="header-container">
         <div className="header-content">
-          {/* Logo */}
+
           <div className="logo">
             <h1>TiendaGrupo5</h1>
           </div>
 
-          {/* Navigation - Hidden on mobile */}
           <nav className="nav">
-            <a href="#">Inicio</a>
-            <a href="#">Productos</a>
-            <a href="#">Categorías</a>
-            <a href="#">Ofertas</a>
-            <a href="#">Contacto</a>
+            <Link to="/">Inicio</Link> 
+            <Link to="/products">Productos</Link>
+            <Link to="/categories">Categorías</Link>
           </nav>
 
-          {/* Actions */}
           <div className="actions">
             <button className="btn btn-hidden-sm">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
