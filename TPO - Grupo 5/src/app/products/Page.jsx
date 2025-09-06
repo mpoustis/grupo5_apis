@@ -1,6 +1,6 @@
 // app/pages/Products.jsx
 import { Header } from "../../components/Header";
-import ProductsMainSection from "../../components/ProductsMainSection";
+import ProductsSection from "../../components/ProductsSection";
 import { Footer } from "../../components/Footer";
 
 export default function Products() {
@@ -8,7 +8,7 @@ export default function Products() {
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        <ProductsMainSection />
+        <ProductsSection />
       </main>
       <Footer />
     </div>

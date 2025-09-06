@@ -1,107 +1,55 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Filter, Grid, List, ChevronDown, ChevronUp, Star, Heart, X } from 'lucide-react';
-import { Link } from "react-router-dom";
-import '../styles/ProductsMainSection.css';
+import { useState, useMemo } from 'react';
+import { Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import ProductCard from '../components/productCard';
+import "../styles/ProductsSection.css"
 
-// Datos de productos expandidos para la demostración
-const allProducts = [
+const products = [
   {
     id: 1,
     name: "Smartphone Pro Max",
-    price: 899,
-    originalPrice: 1199,
+    price: "$899",
+    originalPrice: "$1,199",
     image: "/modern-smartphone.png",
     rating: 4.8,
     reviews: 124,
-    category: "smartphones",
     brand: "TechPro",
-    inStock: true
+    category: "smartphones"
   },
   {
     id: 2,
     name: "Auriculares Inalámbricos",
-    price: 199,
-    originalPrice: 299,
+    price: "$199",
+    originalPrice: "$299",
     image: "/wireless-headphones.png",
     rating: 4.6,
     reviews: 89,
-    category: "audio",
     brand: "SoundMax",
-    inStock: true
+    category: "audio"
   },
   {
     id: 3,
     name: "Smartwatch Elite",
-    price: 349,
-    originalPrice: 449,
+    price: "$349",
+    originalPrice: "$449",
     image: "/premium-smartwatch.png",
     rating: 4.9,
     reviews: 156,
-    category: "wearables",
     brand: "TimeSync",
-    inStock: true
+    category: "wearables"
   },
   {
     id: 4,
     name: "Tablet Ultra",
-    price: 599,
-    originalPrice: 799,
+    price: "$599",
+    originalPrice: "$799",
     image: "/modern-tablet.png",
     rating: 4.7,
     reviews: 203,
-    category: "tablets",
     brand: "DigitalPro",
-    inStock: false
+    category: "tablets"
   },
-  {
-    id: 5,
-    name: "Laptop Gaming Pro",
-    price: 1299,
-    originalPrice: 1699,
-    image: "/gaming-laptop.png",
-    rating: 4.9,
-    reviews: 87,
-    category: "laptops",
-    brand: "GameForce",
-    inStock: true
-  },
-  {
-    id: 6,
-    name: "Cámara Digital 4K",
-    price: 799,
-    originalPrice: 999,
-    image: "/digital-camera.png",
-    rating: 4.5,
-    reviews: 145,
-    category: "cameras",
-    brand: "PhotoMax",
-    inStock: true
-  },
-  {
-    id: 7,
-    name: "Smart Speaker",
-    price: 149,
-    originalPrice: 199,
-    image: "/smart-speaker.png",
-    rating: 4.4,
-    reviews: 234,
-    category: "audio",
-    brand: "VoiceTech",
-    inStock: true
-  },
-  {
-    id: 8,
-    name: "Drone Professional",
-    price: 899,
-    originalPrice: 1199,
-    image: "/professional-drone.png",
-    rating: 4.7,
-    reviews: 76,
-    category: "drones",
-    brand: "AirPro",
-    inStock: true
-  }
-];
+]
 
 const categories = [
   { id: "smartphones", name: "Smartphones" },
@@ -130,79 +78,6 @@ const priceRanges = [
   { id: "1000+", label: "$1000+", min: 1000, max: 10000 }
 ];
 
-const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
-  const discount = Math.round((1 - product.price / product.originalPrice) * 100);
-
-  return (
-    <div className="product-card">
-      {/* Imagen + Overlay + Link al detalle */}
-      <div className="product-image-container">
-        <Link to={`/products/${product.id}`}>
-          <img 
-            src={product.image || "/api/placeholder/280/200"} 
-            alt={product.name}
-            className="product-image"
-          />
-        </Link>
-
-        <button 
-          onClick={() => onToggleFavorite(product.id)}
-          className={`favorite-btn ${isFavorite ? 'active' : 'inactive'}`}
-        >
-          <Heart className="favorite-icon" fill={isFavorite ? "currentColor" : "none"} />
-        </button>
-
-        {discount > 0 && (
-          <div className="discount-badge">-{discount}%</div>
-        )}
-
-        {!product.inStock && (
-          <div className="out-of-stock-overlay">
-            <span className="out-of-stock-text">Sin Stock</span>
-          </div>
-        )}
-      </div>
-
-      <div className="product-info">
-        <div className="product-brand">{product.brand}</div>
-
-        {/* Nombre del producto con link */}
-        <h3 className="product-name">
-          <Link to={`/products/${product.id}`}>
-            {product.name}
-          </Link>
-        </h3>
-
-        <div className="product-rating">
-          <div className="rating-stars-container">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`product-rating-star ${i < Math.floor(product.rating) ? "filled" : "empty"}`}
-              />
-            ))}
-          </div>
-          <span className="product-reviews">({product.reviews})</span>
-        </div>
-
-        <div className="product-pricing">
-          <span className="product-price">${product.price}</span>
-          {product.originalPrice > product.price && (
-            <span className="product-original-price">${product.originalPrice}</span>
-          )}
-        </div>
-
-        <button 
-          disabled={!product.inStock}
-          className={`add-to-cart-btn ${product.inStock ? 'available' : 'unavailable'}`}
-        >
-          {product.inStock ? "Agregar al Carrito" : "Sin Stock"}
-        </button>
-      </div>
-    </div>
-  );
-};
-
 const FilterSection = ({ title, children, isOpen, onToggle }) => (
   <div className="filter-section">
     <button
@@ -230,6 +105,8 @@ export default function ProductsMainSection() {
     ratings: false
   });
 
+  const allProducts = products;
+
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = allProducts.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -243,7 +120,9 @@ export default function ProductsMainSection() {
       if (selectedPriceRanges.size > 0) {
         matchesPrice = Array.from(selectedPriceRanges).some(rangeId => {
           const range = priceRanges.find(r => r.id === rangeId);
-          return range && product.price >= range.min && product.price <= range.max;
+          // Convertir precio de string a número para comparación
+          const productPrice = parseFloat(product.price.replace('$', ''));
+          return range && productPrice >= range.min && productPrice <= range.max;
         });
       }
       
@@ -253,10 +132,10 @@ export default function ProductsMainSection() {
     // Ordenar productos
     switch (sortBy) {
       case "price-low":
-        filtered.sort((a, b) => a.price - b.price);
+        filtered.sort((a, b) => parseFloat(a.price.replace('$', '')) - parseFloat(b.price.replace('$', '')));
         break;
       case "price-high":
-        filtered.sort((a, b) => b.price - a.price);
+        filtered.sort((a, b) => parseFloat(b.price.replace('$', '')) - parseFloat(a.price.replace('$', '')));
         break;
       case "rating":
         filtered.sort((a, b) => b.rating - a.rating);
@@ -269,7 +148,7 @@ export default function ProductsMainSection() {
     }
 
     return filtered;
-  }, [searchTerm, selectedCategories, selectedBrands, selectedPriceRanges, sortBy]);
+  }, [searchTerm, selectedCategories, selectedBrands, selectedPriceRanges, sortBy, allProducts]);
 
   const toggleCategory = (category) => {
     setSelectedCategories(prev => {
@@ -332,14 +211,14 @@ export default function ProductsMainSection() {
     <div className="products-container">
       <div className="products-wrapper">
         <div className="products-header-layout">
-          {/* Sidebar space placeholder for alignment */}
+          {/* Sidebar space placeholder for alignmentt */}
           <div className="sidebar-spacer">
             {/* Empty space to align with sidebar */}
           </div>
           
           {/* Header aligned with main content */}
           <div className="header-content">
-            {/* Breadcrumb */}
+            {/* navbar */}
             <nav className="breadcrumb">
               <span className="breadcrumb-item">Home</span>
               <span className="breadcrumb-separator">/</span>
@@ -354,7 +233,7 @@ export default function ProductsMainSection() {
         </div>
 
         <div className="main-layout">
-          {/* Sidebar - Filtros */}
+          {/* Sidebar - Filtross */}
           <div className="sidebar">
             <div className="filters-container">
               <div className="filters-header">
@@ -442,7 +321,7 @@ export default function ProductsMainSection() {
           {/* Main Content */}
           <div className="main-content">
             {/* Search and Sort Bar */}
-            <div className=".search-sort-bar">
+            <div className="search-sort-bar">
               <div className="search-sort-content">
                 <div className="search-container">
                   <Search className="search-icon" />
@@ -481,12 +360,19 @@ export default function ProductsMainSection() {
             {/* Products Grid */}
             <div className="products-grid">
               {filteredAndSortedProducts.map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isFavorite={favorites.has(product.id)}
-                  onToggleFavorite={toggleFavorite}
-                />
+                <Link 
+                  key={product.id} 
+                  to={`/products/${product.id}`} 
+                  className="product-link" 
+                >
+                  <ProductCard
+                    product={product}
+                    isFavorite={favorites.has(product.id)}
+                    onToggleFavorite={toggleFavorite}
+                    variant="default"
+                    showQuickActions={true}
+                  />
+                </Link>
               ))}
             </div>
 
@@ -494,7 +380,7 @@ export default function ProductsMainSection() {
             {filteredAndSortedProducts.length === 0 && (
               <div className="no-result">
                 <div className="no-result-icon">
-                  <Search className="no-result-icon svg" />
+                  <Search className="no-result-icon-svg" />
                 </div>
                 <h3 className="no-result-text">
                   No se encontraron productos

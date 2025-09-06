@@ -1,5 +1,3 @@
-/* ProductsMainSection.css - Modern E-commerce Style */
-
 .products-container {
   min-height: 100vh;
   background-color: #ffffff;
@@ -327,6 +325,16 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
+}
+
+.product-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.product-link:hover {
+  text-decoration: none;
 }
 
 @media (min-width: 640px) {
