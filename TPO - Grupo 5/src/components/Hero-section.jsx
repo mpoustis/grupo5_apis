@@ -11,7 +11,7 @@ export function HeroSection() {
               Productos de calidad premium con diseños únicos que transformarán tu estilo de vida.
             </p>
             <div className="hero-buttons">
-              <a href="#" className="btn-primary">
+              <a href="/products" className="btn-primary">
                 Explorar Productos
                 <svg className="ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

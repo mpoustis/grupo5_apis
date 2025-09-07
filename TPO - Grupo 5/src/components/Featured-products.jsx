@@ -1,4 +1,5 @@
 import "../styles/Featured-products.css"
+import { useCart } from "../contexts/cart-contexts"
 
 const products = [
   {
@@ -40,6 +41,14 @@ const products = [
 ]
 
 export function FeaturedProducts() {
+  const { addToCart } = useCart()
+
+  const handleAddToCart = (product) => {
+    addToCart(product)
+    // Opcional: mostrar notificación de éxito
+    console.log(`${product.name} agregado al carrito`)
+  }
+
   return (
     <section className="featured-products">
       <div className="featured-container">
@@ -94,7 +103,9 @@ export function FeaturedProducts() {
                   </div>
                 </div>
 
-                <button className="add-to-cart">Agregar al Carrito</button>
+                <button className="add-to-cart" onClick={() => handleAddToCart(product)}>
+                  Agregar al Carrito
+                </button>
               </div>
             </div>
           ))}
