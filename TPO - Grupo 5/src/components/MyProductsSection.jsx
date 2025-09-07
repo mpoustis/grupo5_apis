@@ -1,15 +1,13 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import "../styles/MyProducts.css";
+import { listMyProducts, deleteProduct } from "../services/productsApi";
 
 function ProductRow({ product, onEdit, onDelete }) {
   return (
     <div className="my-product">
       <div className="my-product__thumb">
-        <img
-          src={product.image || "/api/placeholder/150/150"}
-          alt={product.title}
-        />
+        <img src={product.image || "/api/placeholder/150/150"} alt={product.title} />
       </div>
 
       <div className="my-product__info">
@@ -21,12 +19,8 @@ function ProductRow({ product, onEdit, onDelete }) {
       <div className="my-product__stock">{product.stock}</div>
 
       <div className="my-product__actions">
-        <button onClick={() => onEdit(product.id)} className="btn-secondary">
-          Editar
-        </button>
-        <button onClick={() => onDelete(product.id)} className="btn-danger">
-          Eliminar
-        </button>
+        <button onClick={() => onEdit(product.id)} className="btn-secondary">Editar</button>
+        <button onClick={() => onDelete(product.id)} className="btn-danger">Eliminar</button>
       </div>
     </div>
   );
@@ -35,16 +29,34 @@ function ProductRow({ product, onEdit, onDelete }) {
 export default function MyProductsSection() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
 
-  useEffect(() => {
-    setProducts([
-      { id: 1, title: "Smartphone", price: 899, stock: 10, description: "Teléfono de alta gama", image: "/modern-smartphone.png" },
-      { id: 2, title: "Laptop", price: 1299, stock: 5, description: "Laptop gaming", image: "/gaming-laptop.png" },
-    ]);
-  }, []);
+  const load = async () => {
+    try {
+      setLoading(true);
+      setErr("");
+      const data = await listMyProducts();
+      setProducts(data);
+    } catch (e) {
+      setErr(e.message || "Error cargando productos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
 
   const handleEdit = (id) => navigate(`/my-products/${id}/edit`);
-  const handleDelete = (id) => setProducts((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = async (id) => {
+    const p = products.find((x) => x.id === id);
+    if (!p) return;
+    if (!confirm(`¿Eliminar "${p.title}"?`)) return;
+    const prev = products;
+    setProducts(products.filter((x) => x.id !== id));
+    try { await deleteProduct(id); }
+    catch (e) { alert("No se pudo eliminar. Se revierte."); setProducts(prev); }
+  };
 
   return (
     <section className="my-products">
@@ -56,7 +68,6 @@ export default function MyProductsSection() {
           </button>
         </div>
 
-        {/* Encabezado */}
         <div className="my-products__list-header">
           <div className="my-products__col--img">Imagen</div>
           <div className="my-products__col--title">Título</div>
@@ -65,17 +76,13 @@ export default function MyProductsSection() {
           <div className="my-products__col--actions">Acciones</div>
         </div>
 
-        {/* Filas */}
-        <div>
-          {products.map((product) => (
-            <ProductRow
-              key={product.id}
-              product={product}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        {loading && <div className="my-product">Cargando…</div>}
+        {err && <div className="my-product" style={{ color: "#dc2626" }}>{err}</div>}
+
+        {!loading && !err && products.map((product) => (
+          <ProductRow key={product.id} product={product} onEdit={handleEdit} onDelete={handleDelete} />
+        ))}
+        {!loading && !err && products.length === 0 && <div className="my-product">No hay productos.</div>}
       </div>
     </section>
   );

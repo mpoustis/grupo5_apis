@@ -3,72 +3,70 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import EditProductForm from "../../components/EditProductForm";
-import "../../styles/MyProducts.css"; // para fondo gris y botones si querés reutilizar
-import "../../styles/EditProduct.css"; // por si envolvés en .editp__page
-
+import { getProduct, createProduct, updateProduct } from "../../services/productsApi";
+import { getCurrentUser } from "../../services/auth";
+import "../../styles/MyProducts.css";
+import "../../styles/EditProduct.css";
 
 export default function EditProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(!!id);
+  const [loading, setLoading] = useState(Boolean(id));
+  const isEdit = Boolean(id);
 
   useEffect(() => {
-    if (!id) return;
+    if (!isEdit) return;
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await getProduct(id);
+        const { id: me } = getCurrentUser();
 
-    // TODO: reemplazar por fetch real
-    fetch(`/api/products/${id}`)
-      .then((r) => {
-        if (!r.ok) throw new Error("bad");
-        return r.json();
-      })
-      .then((data) => {
+        if (data.ownerId !== me) {
+          alert("No podés editar un producto que no te pertenece.");
+          navigate("/my-products");
+          return;
+        }
         setProduct(data);
+      } catch {
+        alert("No se pudo cargar el producto.");
+        navigate("/my-products");
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        // Mock si no hay API
-        setProduct({
-          title: "Producto de prueba",
-          price: 100,
-          stock: 10,
-          description: "Descripción del producto",
-          image: "https://via.placeholder.com/300",
-        });
-        setLoading(false);
-      });
-  }, [id]);
+      }
+    })();
+  }, [id, isEdit, navigate]);
 
   const handleCancel = () => navigate("/my-products");
 
-  const handleSubmit = async (p) => {
-    if (id) {
-      // TODO: PUT real
-      console.log("Actualizando producto:", { id, ...p });
-      alert("Producto actualizado (mock)");
-    } else {
-      // TODO: POST real
-      console.log("Creando producto:", p);
-      alert("Producto creado (mock)");
+  const handleSubmit = async (product) => {
+    try {
+      if (isEdit) {
+        await updateProduct(id, product);           // PATCH
+        alert("Producto actualizado");
+      } else {
+        await createProduct(product);               // POST
+        alert("Producto creado");
+      }
+      navigate("/my-products");
+    } catch (e) {
+      alert(e.message || "Error guardando producto");
     }
-    navigate("/my-products");
   };
 
   return (
     <div className="editp__page">
       <Header />
-
       <main>
         <EditProductForm
-          initialProduct={id ? product : { title: "", price: "", stock: "", description: "", image: "" }}
+          initialProduct={isEdit ? product : { title: "", price: "", stock: "", description: "", image: "" }}
           loading={loading}
           onCancel={handleCancel}
           onSubmit={handleSubmit}
-          mode={id ? "edit" : "create"}
+          mode={isEdit ? "edit" : "create"}
         />
       </main>
-
       <Footer />
     </div>
   );

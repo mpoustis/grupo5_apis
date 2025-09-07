@@ -1,15 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import "../styles/EditProduct.css";      // NUEVO: estilos de esta pantalla
-import "../styles/MyProducts.css";       // Reusamos .btn-primary / .btn-secondary
+import "../styles/EditProduct.css";
+import "../styles/MyProducts.css";
 
-/**
- * Props:
- * - initialProduct: { title, price, stock, description, image }
- * - loading: boolean
- * - onCancel: () => void
- * - onSubmit: (product) => Promise<void> | void
- * - mode: "create" | "edit"
- */
+
 export default function EditProductForm({
   initialProduct,
   loading = false,
@@ -65,7 +58,7 @@ export default function EditProductForm({
   const handleImageFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Sólo preview local con FileReader (mock). En un back real harías upload y guardarías la URL.
+    // TODO reemplazar con el upload a servidor
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
