@@ -346,10 +346,6 @@ export default function ProductsMainSection() {
               <span className="breadcrumb-current">Productos</span>
             </nav>
 
-            {/* Header */}
-            <div className="page-title">
-              <h1>Productos</h1>
-            </div>
           </div>
         </div>
 

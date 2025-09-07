@@ -24,6 +24,7 @@
   display: flex;
   justify-content: center;
   align-items: start;
+  min-height: 230px;
 }
 
 .product-image-wrapper {
@@ -34,9 +35,8 @@
 }
 
 .product-image {
-  object-fit: contain;
+  object-fit: cover;
   width: 100%;
-  height: auto;
   max-height: 400px;
   transition: transform 0.3s ease;
 }
