@@ -8,7 +8,8 @@ export function Header() {
         <div className="header-content">
 
           <div className="logo">
-            <h1>TiendaGrupo5</h1>
+             <Link to="/"><h1>TiendaGrupo5</h1></Link> 
+            
           </div>
 
           <nav className="nav">

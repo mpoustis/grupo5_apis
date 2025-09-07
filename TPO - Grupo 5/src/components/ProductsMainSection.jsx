@@ -341,7 +341,7 @@ export default function ProductsMainSection() {
           <div className="header-content">
             {/* Breadcrumb */}
             <nav className="breadcrumb">
-              <span className="breadcrumb-item">Home</span>
+              <a href="/"className="breadcrumb-item">Home</a>
               <span className="breadcrumb-separator">/</span>
               <span className="breadcrumb-current">Productos</span>
             </nav>
