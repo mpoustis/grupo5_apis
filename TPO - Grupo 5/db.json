@@ -1,0 +1,32 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Juanse"
+    },
+    {
+      "id": "2",
+      "name": "Manu"
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "ownerId": 1,
+      "title": "Smartphone Pro Max",
+      "price": 88.98,
+      "stock": 10,
+      "description": "Teléfono de alta gama",
+      "image": "/modern-smartphone.png"
+    },
+    {
+      "id": "2",
+      "ownerId": 2,
+      "title": "Laptop Gaming",
+      "price": 1299,
+      "stock": 5,
+      "description": "Laptop para juegos exigentes",
+      "image": "/gaming-laptop.png"
+    }
+  ]
+}
