@@ -72,7 +72,7 @@ const allProducts = [
     name: "Cámara Digital 4K",
     price: 799,
     originalPrice: 999,
-    image: "/digital-camera.png",
+    image: "/digital-camera.jpg",
     rating: 4.5,
     reviews: 145,
     category: "cameras",
