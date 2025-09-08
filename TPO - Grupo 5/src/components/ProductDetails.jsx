@@ -1,7 +1,10 @@
 import React from "react";
 import "../styles/ProductDetails.css"
+import { useCart } from "../contexts/cart-contexts"; 
 
 const ProductDetails = () => {
+  const { addToCart } = useCart();
+
   const product = {
     id: 5,
     name: "Laptop Gaming Pro",
@@ -19,6 +22,11 @@ const ProductDetails = () => {
     priceWithoutTax: 9223.14,
     cuotas: 4,
     cuotasPrice: 2790,
+  };
+
+    const handleAddToCart = () => {
+    addToCart(product);
+    console.log(`${product.name} agregado al carrito ✅`);
   };
 
   return (
@@ -92,7 +100,10 @@ const ProductDetails = () => {
               <option>3 unidades</option>
             </select>
 
-            <button className="add-to-cart-btn available">
+            <button 
+              className="add-to-cart-btn available"
+              onClick={handleAddToCart}
+            >
               Agregar al carrito
             </button>
           </div>

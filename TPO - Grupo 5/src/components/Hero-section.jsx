@@ -1,4 +1,5 @@
 import "../styles/Hero-section.css"
+import { Link } from 'react-router-dom';
 
 export function HeroSection() {
   return (
@@ -11,12 +12,7 @@ export function HeroSection() {
               Productos de calidad premium con diseños únicos que transformarán tu estilo de vida.
             </p>
             <div className="hero-buttons">
-              <a href="/products" className="btn-primary">
-                Explorar Productos
-                <svg className="ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
+              <Link to="/products" className="btn-primary">Explorar Productos</Link>
               <a href="#" className="btn-secondary">
                 Ver Ofertas
               </a>
