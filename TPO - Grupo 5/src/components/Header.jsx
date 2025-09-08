@@ -12,7 +12,13 @@ export function Header() {
         <div className="header-content">
           
           <div className="logo">
-            <Link to="/"><h1>TiendaGrupo5</h1></Link> 
+            <Link to="/">
+              <img 
+                src="../../public/logoTecnoPlace.png" 
+                alt="Logo" 
+                className="logo-image"
+              />
+            </Link> 
           </div>
 
           <nav className="nav">
