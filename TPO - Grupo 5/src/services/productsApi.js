@@ -50,3 +50,5 @@ export async function updateProduct(id, partial) {
 export async function deleteProduct(id) {
   return http(`${BASE}/${id}`, { method: "DELETE" });
 }
+
+

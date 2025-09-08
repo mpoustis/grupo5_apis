@@ -4,20 +4,18 @@ const CartContext = createContext()
 
 const cartReducer = (state, action) => {
   switch (action.type) {
-    case "ADD_TO_CART":
-      const existingItem = state.items.find((item) => item.id === action.payload.id)
-      if (existingItem) {
+    case "ADD_TO_CART": {
+      const existing = state.items.find((it) => it.id === action.payload.id);
+      if (existing) {
         return {
           ...state,
-          items: state.items.map((item) =>
-            item.id === action.payload.id ? { ...item, quantity: item.quantity + 1 } : item,
+          items: state.items.map((it) =>
+            it.id === action.payload.id ? { ...it, quantity: it.quantity + 1 } : it
           ),
-        }
+        };
       }
-      return {
-        ...state,
-        items: [...state.items, { ...action.payload, quantity: 1 }],
-      }
+      return { ...state, items: [...state.items, sanitizeItem({ ...action.payload, quantity: 1 })] };
+    }
 
     case "REMOVE_FROM_CART":
       return {
@@ -25,13 +23,16 @@ const cartReducer = (state, action) => {
         items: state.items.filter((item) => item.id !== action.payload),
       }
 
-    case "UPDATE_QUANTITY":
+    case "UPDATE_QUANTITY": {
+      const q = Number(action.payload.quantity);
+      const quantity = Number.isFinite(q) && q > 0 ? q : 1;
       return {
         ...state,
-        items: state.items.map((item) =>
-          item.id === action.payload.id ? { ...item, quantity: action.payload.quantity } : item,
+        items: state.items.map((it) =>
+          it.id === action.payload.id ? { ...it, quantity } : it
         ),
-      }
+      };
+    }   
 
     case "CLEAR_CART":
       return {
@@ -39,15 +40,34 @@ const cartReducer = (state, action) => {
         items: [],
       }
 
-    case "LOAD_CART":
-      return {
-        ...state,
-        items: action.payload,
-      }
+    case "LOAD_CART": {
+      const loaded = Array.isArray(action.payload) ? action.payload.map(sanitizeItem) : [];
+      return { ...state, items: loaded };
+    }
 
     default:
       return state
   }
+}
+// Normaliza precio que puede venir como "$1.299" o 1299
+function toNumberPrice(val) {
+  if (typeof val === "number") return val;
+  if (typeof val === "string") {
+    const clean = val.replace(/[^\d,.-]/g, "");
+    const normalized = clean.replace(/\./g, "").replace(/,/g, ".");
+    const n = parseFloat(normalized);
+    return Number.isFinite(n) ? n : 0;
+  }
+  return 0;
+}
+
+function sanitizeItem(raw) {
+  const qty = Number(raw?.quantity);
+  return {
+    ...raw,
+    price: toNumberPrice(raw?.price),
+    quantity: Number.isFinite(qty) && qty > 0 ? qty : 1,
+  };
 }
 
 export function CartProvider({ children }) {
@@ -91,11 +111,15 @@ export function CartProvider({ children }) {
   }
 
   const getTotalPrice = () => {
-    return state.items.reduce((total, item) => {
-      const price = Number.parseFloat(item.price.replace("$", "").replace(",", ""))
-      return total + price * item.quantity
-    }, 0)
-  }
+    return state.items.reduce(
+      (acc, item) =>
+      acc + toNumberPrice(item?.price) * (item?.quantity || 0),
+      0
+    );
+  };
+
+
+  
 
   const value = {
     items: state.items,
