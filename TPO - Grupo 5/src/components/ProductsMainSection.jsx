@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Search, Filter, Grid, List, ChevronDown, ChevronUp, Star, Heart, X } from 'lucide-react';
 import { Link } from "react-router-dom";
 import '../styles/ProductsMainSection.css';
+import { useCart } from "../contexts/cart-contexts"
+
 
 // Datos de productos expandidos para la demostración
 const allProducts = [
@@ -130,12 +132,11 @@ const priceRanges = [
   { id: "1000+", label: "$1000+", min: 1000, max: 10000 }
 ];
 
-const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
+const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart }) => {
   const discount = Math.round((1 - product.price / product.originalPrice) * 100);
 
   return (
     <div className="product-card">
-      {/* Imagen + Overlay + Link al detalle */}
       <div className="product-image-container">
         <Link to={`/products/${product.id}`}>
           <img 
@@ -166,7 +167,6 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
       <div className="product-info">
         <div className="product-brand">{product.brand}</div>
 
-        {/* Nombre del producto con link */}
         <h3 className="product-name">
           <Link to={`/products/${product.id}`}>
             {product.name}
@@ -192,8 +192,10 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
           )}
         </div>
 
+        {/* Botón corregido */}
         <button 
           disabled={!product.inStock}
+          onClick={() => onAddToCart(product)}
           className={`add-to-cart-btn ${product.inStock ? 'available' : 'unavailable'}`}
         >
           {product.inStock ? "Agregar al Carrito" : "Sin Stock"}
@@ -202,6 +204,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
     </div>
   );
 };
+
 
 const FilterSection = ({ title, children, isOpen, onToggle }) => (
   <div className="filter-section">
@@ -217,6 +220,7 @@ const FilterSection = ({ title, children, isOpen, onToggle }) => (
 );
 
 export default function ProductsMainSection() {
+  const { addToCart } = useCart();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState(new Set());
   const [selectedBrands, setSelectedBrands] = useState(new Set());
@@ -229,6 +233,12 @@ export default function ProductsMainSection() {
     brands: true,
     ratings: false
   });
+
+  const handleAddToCart = (product) => {
+    addToCart(product)
+    // Opcional: mostrar notificación de éxito
+    console.log(`${product.name} agregado al carrito`)
+  }
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = allProducts.filter(product => {
@@ -482,6 +492,7 @@ export default function ProductsMainSection() {
                   product={product}
                   isFavorite={favorites.has(product.id)}
                   onToggleFavorite={toggleFavorite}
+                  onAddToCart={handleAddToCart}
                 />
               ))}
             </div>
