@@ -18,7 +18,7 @@ export function Header() {
           <nav className="nav">
             <Link to="/">Inicio</Link> 
             <Link to="/products">Productos</Link>
-            <Link to="/categories">Categorías</Link>
+            <Link to="/my-products">Mis Productos</Link>
           </nav>
 
           {/* Actions */}
