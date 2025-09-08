@@ -35,7 +35,7 @@ export default function CartPage() {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="cart-container">
+        <main className="cart-container headerFit">
           <h2>Tu carrito está vacío</h2>
         </main>
         <Footer />
@@ -46,7 +46,7 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="cart-container">
+      <main className="cart-container headerFit">
         <section className="cart-items">
           {items.map((it) => (
             <article className="cart-item" key={it.id}>

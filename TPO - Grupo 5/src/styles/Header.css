@@ -133,3 +133,7 @@
 .cart-link{
   display: flex;
 }
+
+.headerFit {
+  padding-top: 4.5rem !important; /* Altura del header + un poco de margen */
+}

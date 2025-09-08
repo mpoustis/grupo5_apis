@@ -143,4 +143,5 @@
 /* Fix por si #root tiene text-align:center en App.css */
 .my-products, .my-products * {
   text-align: initial;
+  margin-top: 1rem;
 }

@@ -30,7 +30,7 @@ const ProductDetails = () => {
   };
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-12 font-sans">
+    <section className="max-w-6xl mx-auto px-4 py-12 font-sans headerFit">
       <div className="bg-white border border-[#e8ecef] rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-10">
         
         <div className="flex justify-center items-start">
