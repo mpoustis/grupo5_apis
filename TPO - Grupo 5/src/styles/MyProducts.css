@@ -20,7 +20,7 @@
   align-items: center;
   margin-bottom: 1.5rem;
 }
-.my-products__title {
+.my-products__name {
   font-size: 1.5rem;
   font-weight: 700;
   color: #111827;   /* mismo tono que .featured-title */
@@ -55,7 +55,7 @@
     padding: 0.5rem 1rem;
   }
   .my-products__col--img     { width: 5rem; }     /* 80px */
-  .my-products__col--title   { flex: 1; }
+  .my-products__col--name   { flex: 1; }
   .my-products__col--price   { width: 6rem; text-align: right; }
   .my-products__col--stock   { width: 5rem; text-align: center; }
   .my-products__col--actions { width: 10rem; text-align: right; }
@@ -93,7 +93,7 @@
 
 /* Info */
 .my-product__info { flex: 1; padding: 0 1rem; }
-.my-product__title {
+.my-product__name {
   font-weight: 600;
   font-size: 1rem;
   color: #111827;
