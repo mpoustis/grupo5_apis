@@ -23,13 +23,13 @@ async function http(url, options) {
 /**
  * Listar productos con filtros opcionales
  * @param {Object} [opts]
- * @param {boolean} [opts.onlyPublic=false]   Si true, agrega public=true
+ * @param {boolean} [opts.onlyPublic=true]   Si true, agrega public=true
  * @param {string|string[]} [opts.categories] Una o más categorías exactas
  * @param {"asc"|"desc"|null} [opts.order=null] Si se define, ordena por precio
  */
 export async function listProducts(opts = {}) {
   const {
-    onlyPublic = false,
+    onlyPublic = true,
     categories,
     order = null, // "asc" | "desc" | null (sin orden)
   } = opts;
