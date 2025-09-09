@@ -11,22 +11,61 @@
   ],
   "products": [
     {
-      "id": "1",
-      "ownerId": 1,
-      "title": "Smartphone Pro Max",
-      "price": 88.98,
-      "stock": 10,
-      "description": "Teléfono de alta gama",
-      "image": "/modern-smartphone.png"
-    },
-    {
-      "id": "2",
-      "ownerId": 2,
-      "title": "Laptop Gaming",
-      "price": 1299,
-      "stock": 5,
-      "description": "Laptop para juegos exigentes",
-      "image": "/gaming-laptop.png"
-    }
+    "id": "1",
+    "ownerId": 1,
+    "name": "Smartphone Pro Max",
+    "description":"Laptop para juegos exigentes",
+    "price": 899,
+    "stock": 15,
+    "originalPrice": 1199,
+    "image": "/modern-smartphone.png",
+    "rating": 4.8,
+    "reviews": 124,
+    "category": "smartphones",
+    "brand": "TechPro",
+    "inStock": true,
+    "public": true,
+    "tax": 0.21,
+    "cuotas": 12,
+    "fee": 0.15 
+  },
+  {
+    "id": "2",
+    "ownerId": 1,
+    "name": "Laptop Gamer Xtreme",
+    "description":"Laptop para juegos exigentes",
+    "price": 1299,
+    "stock": 8,
+    "originalPrice": 1599,
+    "image": "/gaming-laptop.png",
+    "rating": 4.6,
+    "reviews": 98,
+    "category": "laptops",
+    "brand": "GameTech",
+    "inStock": true,
+    "public": true,
+    "tax": 0.21,
+    "cuotas": 12,
+    "fee": 0.15 
+  },
+  {
+    "id": "3",
+    "ownerId": 1,
+    "name": "Auriculares Inalámbricos Plus",
+    "description":"Auriculares con cancelación de ruido",
+    "price": 199,
+    "stock": 25,
+    "originalPrice": 249,
+    "image": "/wireless-headphones.png",
+    "rating": 4.5,
+    "reviews": 76,
+    "category": "audio",
+    "brand": "SoundMax",
+    "inStock": true,
+    "public": true,
+    "tax": 0.21,
+    "cuotas": 6,
+    "fee": 0.10 
+  }
   ]
 }
