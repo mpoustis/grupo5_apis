@@ -7,11 +7,11 @@ function ProductRow({ product, onEdit, onDelete }) {
   return (
     <div className="my-product">
       <div className="my-product__thumb">
-        <img src={product.image || "/api/placeholder/150/150"} alt={product.title} />
+        <img src={product.image || "/api/placeholder/150/150"} alt={product.name} />
       </div>
 
       <div className="my-product__info">
-        <h3 className="my-product__title">{product.title}</h3>
+        <h3 className="my-product__name">{product.name}</h3>
         <p className="my-product__desc">{product.description}</p>
       </div>
 
@@ -51,7 +51,7 @@ export default function MyProductsSection() {
   const handleDelete = async (id) => {
     const p = products.find((x) => x.id === id);
     if (!p) return;
-    if (!confirm(`¿Eliminar "${p.title}"?`)) return;
+    if (!confirm(`¿Eliminar "${p.name}"?`)) return;
     const prev = products;
     setProducts(products.filter((x) => x.id !== id));
     try { await deleteProduct(id); }
@@ -62,7 +62,7 @@ export default function MyProductsSection() {
     <section className="my-products">
       <div className="my-products__container">
         <div className="my-products__header">
-          <h1 className="my-products__title">Mis Productos</h1>
+          <h1 className="my-products__name">Mis Productos</h1>
           <button className="btn-primary" onClick={() => navigate("/my-products/new")}>
             + Nuevo Producto
           </button>
@@ -70,7 +70,7 @@ export default function MyProductsSection() {
 
         <div className="my-products__list-header">
           <div className="my-products__col--img">Imagen</div>
-          <div className="my-products__col--title">Título</div>
+          <div className="my-products__col--name">Título</div>
           <div className="my-products__col--price">Precio</div>
           <div className="my-products__col--stock">Stock</div>
           <div className="my-products__col--actions">Acciones</div>
