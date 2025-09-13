@@ -41,74 +41,10 @@ export default function EditProductForm({
 
   const isCreate = mode === "create";
 
-  const isValidUrlLike = (val) =>
-    /^https?:\/\/|^\/|^data:image\//i.test(val || "");
-
-  const intOrNaN = (v) => {
-    const n = Number(v);
-    return Number.isInteger(n) ? n : NaN;
-  };
-
-  const numOrNaN = (v) => {
-    const n = Number(v);
-    return Number.isNaN(n) ? NaN : n;
-  };
-
   const validate = (p) => {
     const e = {};
 
     if (!p.name?.trim()) e.name = "El nombre es obligatorio.";
-
-    const price = numOrNaN(p.price);
-    if (Number.isNaN(price) || price < 0) e.price = "Precio inválido.";
-
-    const stock = intOrNaN(p.stock);
-    if (Number.isNaN(stock) || stock < 0) e.stock = "Stock inválido.";
-
-    if (p.description && p.description.length > 500)
-      e.description = "Máximo 500 caracteres.";
-
-    if (p.image && !isValidUrlLike(p.image))
-      e.image = "Debe ser una URL válida, ruta local (/img.png) o data URI.";
-
-    const originalPrice = p.originalPrice === "" ? null : numOrNaN(p.originalPrice);
-    if (originalPrice !== null && (Number.isNaN(originalPrice) || originalPrice < 0)) {
-      e.originalPrice = "Precio original inválido.";
-    }
-    if (!e.price && originalPrice !== null && originalPrice < Number(price)) {
-      e.originalPrice = "El precio original debe ser ≥ precio.";
-    }
-
-    const rating = p.rating === "" ? null : numOrNaN(p.rating);
-    if (rating !== null && (rating < 0 || rating > 5)) {
-      e.rating = "Rating debe estar entre 0 y 5.";
-    }
-
-    const reviews = p.reviews === "" ? null : intOrNaN(p.reviews);
-    if (reviews !== null && reviews < 0) {
-      e.reviews = "Reseñas debe ser un entero ≥ 0.";
-    }
-
-    const tax = numOrNaN(p.tax);
-    if (Number.isNaN(tax) || tax < 0 || tax > 1) {
-      e.tax = "Impuesto (tax) debe ser un número entre 0 y 1 (ej: 0.21).";
-    }
-
-    const cuotas = intOrNaN(p.cuotas);
-    if (Number.isNaN(cuotas) || cuotas < 1) {
-      e.cuotas = "Cuotas debe ser un entero ≥ 1.";
-    }
-
-    const fee = numOrNaN(p.fee);
-    if (Number.isNaN(fee) || fee < 0 || fee > 1) {
-      e.fee = "Interés (fee) debe ser un número entre 0 y 1 (ej: 0.15).";
-    }
-
-    // Opcional: coherencia entre stock e inStock
-    if (!e.stock && p.inStock !== (Number(stock) > 0)) {
-      // No bloquea, solo sugerencia; si querés hacerla estricta, convertir a error
-      // e.inStock = "inStock debería coincidir con stock > 0.";
-    }
 
     return e;
   };
