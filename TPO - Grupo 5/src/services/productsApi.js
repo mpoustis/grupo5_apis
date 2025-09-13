@@ -44,9 +44,10 @@ export async function listProducts(opts = {}) {
     params.set("category", categories);
   }
 
-  if (order === "asc" || order === "desc") {
+  if (order === "asc") {
     params.set("_sort", "price");
-    params.set("_order", order);
+  } else if (order === "desc") {
+    params.set("_sort", "-price");
   }
 
   const url = params.toString() ? `${BASE}?${params.toString()}` : BASE;
