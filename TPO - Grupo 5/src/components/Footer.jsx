@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-12">
@@ -5,7 +7,24 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company info */}
           <div>
-            <h3 className="text-xl font-bold text-emerald-400 mb-4">TiendaGrupo5</h3>
+            <div className="logo">
+              <Link to="/">
+                <img 
+                  src="../../public/logoTecnoPlace.png" 
+                  alt="Logo" 
+                  style={{
+                    height: "7rem",
+                    width: "auto",
+                    maxWidth: "200px",
+                    objectFit: "contain",
+                    transition: "transform 0.3s ease",
+                    filter: "brightness(0) invert(1)"
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.15)"}
+                  onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+                />
+              </Link> 
+            </div>
             <p className="text-gray-400 mb-4">
               Tu destino para productos de calidad premium con la mejor experiencia de compra online.
             </p>
@@ -119,7 +138,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-400">© 2025 TiendaGrupo5. Todos los derechos reservados.</p>
+          <p className="text-gray-400">© 2025 TecnoPlace. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

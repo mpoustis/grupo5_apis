@@ -1,49 +1,16 @@
-import {Link, useParams } from 'react-router-dom';
-import ProductCard from './productCard';
-import '../styles/ProductDetails.css';
+import React from "react";
+import "../styles/ProductDetails.css"
+import { useCart } from "../contexts/cart-contexts"; 
 
-const mockProducts = [
-  {
-    id: 1,
-    name: "Smartphone Pro Max",
-    brand: "TechPro",
-    price: "899",
-    originalPrice: "1199",
-    discount: 25,
-    rating: 4.8,
-    reviews: 124,
-    cuotas: 12,
-    cuotasPrice: "75", 
-    priceWithoutTax: "742", 
-    image: "/modern-smartphone.png",
-    category: "smartphones",
-    inStock: true,
-    description: "El Smartphone Pro Max de TechPro representa la última innovación en tecnología móvil..."
-  },
-  {
-    id: 2,
-    name: "Auriculares Inalámbricos",
-    brand: "SoundMax",
-    price: "199",
-    originalPrice: "299",
-    discount: 33,
-    rating: 4.6,
-    reviews: 89,
-    cuotas: 6,
-    cuotasPrice: "33",
-    priceWithoutTax: "164",
-    image: "/wireless-headphones.png",
-    category: "audio",
-    inStock: true,
-    description: "Los Auriculares Inalámbricos SoundMax ofrecen una experiencia de audio premium..."
-  },
-  {
-    id: 3,
-    name: "Smartwatch Elite",
-    brand: "TimeSync",
-    price: "349",
-    originalPrice: "449",
-    discount: 22,
+const ProductDetails = () => {
+  const { addToCart } = useCart();
+
+  const product = {
+    id: 5,
+    name: "Laptop Gaming Pro",
+    price: 1299,
+    originalPrice: 1699,
+    image: "/gaming-laptop.png",
     rating: 4.9,
     reviews: 156,
     cuotas: 9,
@@ -69,42 +36,22 @@ const mockProducts = [
     image: "/modern-tablet.png",
     category: "tablets",
     inStock: true,
-    description: "La Tablet Ultra de DigitalPro redefine la productividad móvil con su potente rendimiento..."
-  }
-];
+    discount: 35,
+    description: `Óleo Extraordinario Elvive x 100 ml. El Óleo Extraordinario transforma el pelo seco llenándolo de vida, luciendo sublime en todos sus aspectos. Su textura ligera enriquecida con extracto de 6 óleos de flores preciosas se funde en el pelo para revitalizar la estructura capilar, lograr un brillo extraordinario y una suavidad infinita. No genera efecto graso y tiene múltiples usos: antes del shampoo NUTRE intensamente; antes del peinado SUAVIZA y sirve como PROTECTOR TÉRMICO; como toque final da BRILLO y acción ANTI-FRIZZ.`,
+    volume: "100 ml",
+    priceWithoutTax: 9223.14,
+    cuotas: 4,
+    cuotasPrice: 2790,
+  };
 
-
-
-
-const ProductDetails = () => {
-  const { id } = useParams();
-  
-  // Buscar el producto por ID
-  const product = mockProducts.find(p => p.id === parseInt(id));
-  
-  const suggestedProducts = mockProducts
-    .filter(p => p.id !== product.id)
-    .slice(0, 3);
-
-  // Si no encuentra el producto, mostrar mensaje de error
-  if (!product) {
-    return (
-      <section className="product-details">
-        <div className="product-not-found">
-          <h1 className="not-found-title">
-            Producto no encontrado
-          </h1>
-          <p className="not-found-text">
-            El producto seleccionado no existe.
-          </p>
-        </div>
-      </section>
-    );
-  }
+    const handleAddToCart = () => {
+    addToCart(product);
+    console.log(`${product.name} agregado al carrito ✅`);
+  };
 
   return (
-    <section className="product-details">
-      <div className="product-card">
+    <section className="max-w-6xl mx-auto px-4 py-12 font-sans headerFit">
+      <div className="bg-white border border-[#e8ecef] rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-10">
         
         <div className="image-container">
           <div className="image-wrapper">
@@ -180,7 +127,10 @@ const ProductDetails = () => {
               <option>3 unidades</option>
             </select>
 
-            <button className="add-to-cart-btn">
+            <button 
+              className="add-to-cart-btn available"
+              onClick={handleAddToCart}
+            >
               Agregar al carrito
             </button>
           </div>

@@ -1,25 +1,36 @@
 import "../styles/Header.css"
 import { Link } from 'react-router-dom';
+import { useCart } from "../contexts/cart-contexts"
 
 export function Header() {
+  const { getTotalItems } = useCart()
+  const totalItems = getTotalItems()
+
   return (
     <header className="header">
       <div className="header-container">
         <div className="header-content">
-
+          
           <div className="logo">
-            <h1>TiendaGrupo5</h1>
+            <Link to="/">
+              <img 
+                src="../../public/logoTecnoPlace.png" 
+                alt="Logo" 
+                className="logo-image"
+              />
+            </Link> 
           </div>
 
           <nav className="nav">
             <Link to="/">Inicio</Link> 
             <Link to="/products">Productos</Link>
-            <Link to="/categories">Categorías</Link>
+            <Link to="/my-products">Mis Productos</Link>
           </nav>
 
+          {/* Actions */}
           <div className="actions">
             <button className="btn btn-hidden-sm">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg fill="none" stroke="black" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -28,26 +39,30 @@ export function Header() {
                 />
               </svg>
             </button>
-            <button className="btn">
-              <svg fill="none" stroke="black" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"
-                />
-              </svg>
-              <span className="cart-badge">3</span>
+            <button className="btn" aria-label="Ir al carrito">
+              <Link to="/cart" className="cart-link">
+                <svg fill="none" stroke="black" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0...-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"
+                  />
+                </svg>
+                {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
+              </Link>
             </button>
             <button className="btn btn-hidden-sm">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
+              <Link to="/login">
+                <svg fill="none" stroke="black" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </Link>
             </button>
             <button className="btn btn-mobile-only">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

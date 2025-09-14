@@ -2,6 +2,11 @@
   background-color: white;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   border-bottom: 1px solid #d1fae5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 1;
 }
 
 .header-container {
@@ -34,11 +39,16 @@
   align-items: center;
 }
 
-.logo h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #059669;
-  margin: 0;
+.logo-image {
+  height: 7rem;
+  width: auto;
+  max-width: 200px; 
+  object-fit: contain; 
+  transition: transform 0.3s ease;
+}
+
+.logo-image:hover {
+  transform: scale(1.15);
 }
 
 .nav {
@@ -118,4 +128,12 @@
   .btn-mobile-only {
     display: none;
   }
+}
+
+.cart-link{
+  display: flex;
+}
+
+.headerFit {
+  padding-top: 4.5rem !important; /* Altura del header + un poco de margen */
 }

@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react';
-import { Search, ChevronDown, ChevronUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import ProductCard from '../components/productCard';
-import "../styles/ProductsSection.css"
+import React, { useState, useMemo } from 'react';
+import { Search, Filter, Grid, List, ChevronDown, ChevronUp, Star, Heart, X } from 'lucide-react';
+import { Link } from "react-router-dom";
+import '../styles/ProductsMainSection.css';
+import { useCart } from "../contexts/cart-contexts"
 
-const products = [
+
+// Datos de productos expandidos para la demostración
+const allProducts = [
   {
     id: 1,
     name: "Smartphone Pro Max",
@@ -47,9 +49,57 @@ const products = [
     rating: 4.7,
     reviews: 203,
     brand: "DigitalPro",
-    category: "tablets"
+    inStock: false
   },
-]
+  {
+    id: 5,
+    name: "Laptop Gaming Pro",
+    price: 1299,
+    originalPrice: 1699,
+    image: "/gaming-laptop.png",
+    rating: 4.9,
+    reviews: 87,
+    category: "laptops",
+    brand: "GameForce",
+    inStock: true
+  },
+  {
+    id: 6,
+    name: "Cámara Digital 4K",
+    price: 799,
+    originalPrice: 999,
+    image: "/digital-camera.jpg",
+    rating: 4.5,
+    reviews: 145,
+    category: "cameras",
+    brand: "PhotoMax",
+    inStock: true
+  },
+  {
+    id: 7,
+    name: "Smart Speaker",
+    price: 149,
+    originalPrice: 199,
+    image: "/smart-speaker.png",
+    rating: 4.4,
+    reviews: 234,
+    category: "audio",
+    brand: "VoiceTech",
+    inStock: true
+  },
+  {
+    id: 8,
+    name: "Drone Professional",
+    price: 899,
+    originalPrice: 1199,
+    image: "/professional-drone.png",
+    rating: 4.7,
+    reviews: 76,
+    category: "drones",
+    brand: "AirPro",
+    inStock: true
+  }
+];
 
 const categories = [
   { id: "smartphones", name: "Smartphones" },
@@ -78,6 +128,80 @@ const priceRanges = [
   { id: "1000+", label: "$1000+", min: 1000, max: 10000 }
 ];
 
+const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart }) => {
+  const discount = Math.round((1 - product.price / product.originalPrice) * 100);
+
+  return (
+    <div className="product-card">
+      <div className="product-image-container">
+        <Link to={`/products/${product.id}`}>
+          <img 
+            src={product.image || "/api/placeholder/280/200"} 
+            alt={product.name}
+            className="product-image"
+          />
+        </Link>
+
+        <button 
+          onClick={() => onToggleFavorite(product.id)}
+          className={`favorite-btn ${isFavorite ? 'active' : 'inactive'}`}
+        >
+          <Heart className="favorite-icon" fill={isFavorite ? "currentColor" : "none"} />
+        </button>
+
+        {discount > 0 && (
+          <div className="discount-badge">-{discount}%</div>
+        )}
+
+        {!product.inStock && (
+          <div className="out-of-stock-overlay">
+            <span className="out-of-stock-text">Sin Stock</span>
+          </div>
+        )}
+      </div>
+
+      <div className="product-info">
+        <div className="product-brand">{product.brand}</div>
+
+        <h3 className="product-name">
+          <Link to={`/products/${product.id}`}>
+            {product.name}
+          </Link>
+        </h3>
+
+        <div className="product-rating">
+          <div className="rating-stars-container">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className={`product-rating-star ${i < Math.floor(product.rating) ? "filled" : "empty"}`}
+              />
+            ))}
+          </div>
+          <span className="product-reviews">({product.reviews})</span>
+        </div>
+
+        <div className="product-pricing">
+          <span className="product-price">${product.price}</span>
+          {product.originalPrice > product.price && (
+            <span className="product-original-price">${product.originalPrice}</span>
+          )}
+        </div>
+
+        {/* Botón corregido */}
+        <button 
+          disabled={!product.inStock}
+          onClick={() => onAddToCart(product)}
+          className={`add-to-cart-btn ${product.inStock ? 'available' : 'unavailable'}`}
+        >
+          {product.inStock ? "Agregar al Carrito" : "Sin Stock"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+
 const FilterSection = ({ title, children, isOpen, onToggle }) => (
   <div className="filter-section">
     <button
@@ -92,6 +216,7 @@ const FilterSection = ({ title, children, isOpen, onToggle }) => (
 );
 
 export default function ProductsMainSection() {
+  const { addToCart } = useCart();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState(new Set());
   const [selectedBrands, setSelectedBrands] = useState(new Set());
@@ -105,7 +230,11 @@ export default function ProductsMainSection() {
     ratings: false
   });
 
-  const allProducts = products;
+  const handleAddToCart = (product) => {
+    addToCart(product)
+    // Opcional: mostrar notificación de éxito
+    console.log(`${product.name} agregado al carrito`)
+  }
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = allProducts.filter(product => {
@@ -220,15 +349,11 @@ export default function ProductsMainSection() {
           <div className="header-content">
             {/* navbar */}
             <nav className="breadcrumb">
-              <span className="breadcrumb-item">Home</span>
+              <a href="/"className="breadcrumb-item">Home</a>
               <span className="breadcrumb-separator">/</span>
               <span className="breadcrumb-current">Productos</span>
             </nav>
 
-            {/* Header */}
-            <div className="page-title">
-              <h1>Productos</h1>
-            </div>
           </div>
         </div>
 
@@ -360,19 +485,13 @@ export default function ProductsMainSection() {
             {/* Products Grid */}
             <div className="products-grid">
               {filteredAndSortedProducts.map(product => (
-                <Link 
-                  key={product.id} 
-                  to={`/products/${product.id}`} 
-                  className="product-link" 
-                >
-                  <ProductCard
-                    product={product}
-                    isFavorite={favorites.has(product.id)}
-                    onToggleFavorite={toggleFavorite}
-                    variant="default"
-                    showQuickActions={true}
-                  />
-                </Link>
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isFavorite={favorites.has(product.id)}
+                  onToggleFavorite={toggleFavorite}
+                  onAddToCart={handleAddToCart}
+                />
               ))}
             </div>
 
