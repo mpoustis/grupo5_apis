@@ -54,10 +54,14 @@ export default function EditProductForm({
     return Object.keys(e).length === 0;
   }, [product]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({ ...prev, [name]: value }));
-    if (name === "image") {
+const handleChange = (e) => {
+    const { name, type, value, checked } = e.target;
+    setProduct((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+
+    if (name === "image" && type !== "checkbox") {
       setPreview(value);
     }
   };
