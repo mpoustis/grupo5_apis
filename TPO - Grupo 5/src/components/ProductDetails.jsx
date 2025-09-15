@@ -1,30 +1,33 @@
-import React from "react";
-import "../styles/ProductDetails.css"
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import "../styles/ProductDetails.css";
 import { useCart } from "../contexts/cart-contexts"; 
+import { getProduct } from "../services/productsApi"; 
 
 const ProductDetails = () => {
   const { addToCart } = useCart();
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const product = {
-    id: 5,
-    name: "Laptop Gaming Pro",
-    price: 1299,
-    originalPrice: 1699,
-    image: "/gaming-laptop.png",
-    rating: 4.9,
-    reviews: 87,
-    category: "laptops",
-    brand: "GameForce",
-    inStock: true,
-    discount: 35,
-    description: `Óleo Extraordinario Elvive x 100 ml. El Óleo Extraordinario transforma el pelo seco llenándolo de vida, luciendo sublime en todos sus aspectos. Su textura ligera enriquecida con extracto de 6 óleos de flores preciosas se funde en el pelo para revitalizar la estructura capilar, lograr un brillo extraordinario y una suavidad infinita. No genera efecto graso y tiene múltiples usos: antes del shampoo NUTRE intensamente; antes del peinado SUAVIZA y sirve como PROTECTOR TÉRMICO; como toque final da BRILLO y acción ANTI-FRIZZ.`,
-    volume: "100 ml",
-    priceWithoutTax: 9223.14,
-    cuotas: 4,
-    cuotasPrice: 2790,
-  };
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const data = await getProduct(id); 
+        setProduct(data);
+      } catch (err) {
+        console.error("Error cargando producto", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
-    const handleAddToCart = () => {
+  if (loading) return <p>Cargando producto...</p>;
+  if (!product) return <p>Producto no encontrado ❌</p>;
+
+  const handleAddToCart = () => {
     addToCart(product);
     console.log(`${product.name} agregado al carrito ✅`);
   };
@@ -36,7 +39,7 @@ const ProductDetails = () => {
         <div className="flex justify-center items-start">
           <div className="bg-[#f8f9fa] rounded-xl overflow-hidden w-full max-w-sm">
             <img
-              src={product.image}
+              src={product.image || "/api/placeholder/280/200"}
               alt={product.name}
               className="object-contain w-full h-auto max-h-[400px] transition-transform duration-300 hover:scale-105"
             />
@@ -58,9 +61,7 @@ const ProductDetails = () => {
                 <svg
                   key={i}
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`w-5 h-5 ${
-                    i < product.rating ? "text-yellow-400" : "text-[#e0e0e0]"
-                  }`}
+                  className={`w-5 h-5 ${i < product.rating ? "text-yellow-400" : "text-[#e0e0e0]"}`}
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -78,19 +79,27 @@ const ProductDetails = () => {
               <span className="text-2xl font-bold text-[#1a1a1a]">
                 ${product.price.toLocaleString()}
               </span>
-              <span className="text-base text-[#999] line-through">
-                ${product.originalPrice.toLocaleString()}
-              </span>
-              <span className="text-sm font-semibold text-[#ff3838]">
-                -{product.discount}%
-              </span>
+              {product.originalPrice && (
+                <span className="text-base text-[#999] line-through">
+                  ${product.originalPrice.toLocaleString()}
+                </span>
+              )}
+              {product.discount && (
+                <span className="text-sm font-semibold text-[#ff3838]">
+                  -{product.discount}%
+                </span>
+              )}
             </div>
-            <p className="text-sm text-[#333]">
-              o hasta {product.cuotas} cuotas sin interés de ${product.cuotasPrice.toLocaleString()}
-            </p>
-            <p className="text-xs text-[#888]">
-              Precio sin impuestos nacionales: ${product.priceWithoutTax.toLocaleString()}
-            </p>
+            {product.cuotas && (
+              <p className="text-sm text-[#333]">
+                o hasta {product.cuotas} cuotas sin interés
+              </p>
+            )}
+            {product.tax && (
+              <p className="text-xs text-[#888]">
+                Precio sin impuestos nacionales: ${(product.price / (1 + product.tax)).toFixed(2)}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-4 pt-4">

@@ -1,110 +1,11 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Filter, Grid, List, ChevronDown, ChevronUp, Star, Heart, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, ChevronDown, ChevronUp, Star, Heart } from 'lucide-react';
 import { Link } from "react-router-dom";
 import '../styles/ProductsMainSection.css';
-import { useCart } from "../contexts/cart-contexts"
+import { useCart } from "../contexts/cart-contexts";
+import { listProducts } from "../services/productsApi";
 
-
-// Datos de productos expandidos para la demostración
-const allProducts = [
-  {
-    id: 1,
-    name: "Smartphone Pro Max",
-    price: 899,
-    originalPrice: 1199,
-    image: "/modern-smartphone.png",
-    rating: 4.8,
-    reviews: 124,
-    category: "smartphones",
-    brand: "TechPro",
-    inStock: true
-  },
-  {
-    id: 2,
-    name: "Auriculares Inalámbricos",
-    price: 199,
-    originalPrice: 299,
-    image: "/wireless-headphones.png",
-    rating: 4.6,
-    reviews: 89,
-    category: "audio",
-    brand: "SoundMax",
-    inStock: true
-  },
-  {
-    id: 3,
-    name: "Smartwatch Elite",
-    price: 349,
-    originalPrice: 449,
-    image: "/premium-smartwatch.png",
-    rating: 4.9,
-    reviews: 156,
-    category: "wearables",
-    brand: "TimeSync",
-    inStock: true
-  },
-  {
-    id: 4,
-    name: "Tablet Ultra",
-    price: 599,
-    originalPrice: 799,
-    image: "/modern-tablet.png",
-    rating: 4.7,
-    reviews: 203,
-    category: "tablets",
-    brand: "DigitalPro",
-    inStock: false
-  },
-  {
-    id: 5,
-    name: "Laptop Gaming Pro",
-    price: 1299,
-    originalPrice: 1699,
-    image: "/gaming-laptop.png",
-    rating: 4.9,
-    reviews: 87,
-    category: "laptops",
-    brand: "GameForce",
-    inStock: true
-  },
-  {
-    id: 6,
-    name: "Cámara Digital 4K",
-    price: 799,
-    originalPrice: 999,
-    image: "/digital-camera.jpg",
-    rating: 4.5,
-    reviews: 145,
-    category: "cameras",
-    brand: "PhotoMax",
-    inStock: true
-  },
-  {
-    id: 7,
-    name: "Smart Speaker",
-    price: 149,
-    originalPrice: 199,
-    image: "/smart-speaker.png",
-    rating: 4.4,
-    reviews: 234,
-    category: "audio",
-    brand: "VoiceTech",
-    inStock: true
-  },
-  {
-    id: 8,
-    name: "Drone Professional",
-    price: 899,
-    originalPrice: 1199,
-    image: "/professional-drone.png",
-    rating: 4.7,
-    reviews: 76,
-    category: "drones",
-    brand: "AirPro",
-    inStock: true
-  }
-];
-
+// 🔹 Datos de filtros
 const categories = [
   { id: "smartphones", name: "Smartphones" },
   { id: "audio", name: "Audio" },
@@ -132,6 +33,7 @@ const priceRanges = [
   { id: "1000+", label: "$1000+", min: 1000, max: 10000 }
 ];
 
+// 🔹 Componente de tarjeta de producto
 const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart }) => {
   const discount = Math.round((1 - product.price / product.originalPrice) * 100);
 
@@ -186,13 +88,12 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart }) => 
         </div>
 
         <div className="product-pricing">
-          <span className="product-price">${product.price}</span>
+          <span className="product-price">${product.price.toLocaleString()}</span>
           {product.originalPrice > product.price && (
-            <span className="product-original-price">${product.originalPrice}</span>
+            <span className="product-original-price">${product.originalPrice.toLocaleString()}</span>
           )}
         </div>
 
-        {/* Botón corregido */}
         <button 
           disabled={!product.inStock}
           onClick={() => onAddToCart(product)}
@@ -205,7 +106,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart }) => 
   );
 };
 
-
+// 🔹 Sección de filtros colapsables
 const FilterSection = ({ title, children, isOpen, onToggle }) => (
   <div className="filter-section">
     <button
@@ -219,8 +120,11 @@ const FilterSection = ({ title, children, isOpen, onToggle }) => (
   </div>
 );
 
+// 🔹 Componente principal
 export default function ProductsMainSection() {
   const { addToCart } = useCart();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState(new Set());
   const [selectedBrands, setSelectedBrands] = useState(new Set());
@@ -234,19 +138,92 @@ export default function ProductsMainSection() {
     ratings: false
   });
 
-  const handleAddToCart = (product) => {
-    addToCart(product)
-    // Opcional: mostrar notificación de éxito
-    console.log(`${product.name} agregado al carrito`)
-  }
+  // 🔹 Traer productos desde API
+  useEffect(() => {
+    const fetchProducts = async () => {
+  setLoading(true);
+  try {
+    const opts = {
+      onlyPublic: true, 
+      categories: Array.from(selectedCategories),
+      order: sortBy === "price-low" ? "asc" : sortBy === "price-high" ? "desc" : null
+    };
 
-  const filteredAndSortedProducts = useMemo(() => {
-    let filtered = allProducts.filter(product => {
+    const data = await listProducts(opts);
+
+    const filtered = data.filter(product => {
+      // marcas
+      const matchesBrand = selectedBrands.size === 0 || selectedBrands.has(product.brand);
+
+      // rangos de precio
+      const matchesPrice = selectedPriceRanges.size === 0 || Array.from(selectedPriceRanges).some(rangeId => {
+        const range = priceRanges.find(r => r.id === rangeId);
+        return range && product.price >= range.min && product.price <= range.max;
+      });
+
+      // búsqueda
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+                            product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return matchesBrand && matchesPrice && matchesSearch;
+    });
+
+    setProducts(filtered);
+  } catch (err) {
+    console.error("Error al cargar productos:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+    fetchProducts();
+  }, [selectedCategories, selectedBrands, selectedPriceRanges, sortBy, searchTerm]);
+
+  // 🔹 Manejo de carrito y favoritos
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    console.log(`${product.name} agregado al carrito`);
+  };
+
+  const toggleFavorite = (productId) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      newFavorites.has(productId) ? newFavorites.delete(productId) : newFavorites.add(productId);
+      return newFavorites;
+    });
+  };
+
+  const toggleCategory = (category) => setSelectedCategories(prev => {
+    const newSet = new Set(prev);
+    newSet.has(category) ? newSet.delete(category) : newSet.add(category);
+    return newSet;
+  });
+
+  const toggleBrand = (brand) => setSelectedBrands(prev => {
+    const newSet = new Set(prev);
+    newSet.has(brand) ? newSet.delete(brand) : newSet.add(brand);
+    return newSet;
+  });
+
+  const togglePriceRange = (rangeId) => setSelectedPriceRanges(prev => {
+    const newSet = new Set(prev);
+    newSet.has(rangeId) ? newSet.delete(rangeId) : newSet.add(rangeId);
+    return newSet;
+  });
+
+  const clearAllFilters = () => {
+    setSelectedCategories(new Set());
+    setSelectedBrands(new Set());
+    setSelectedPriceRanges(new Set());
+    setSearchTerm("");
+  };
+
+  // 🔹 Filtrado y ordenamiento
+  const filteredAndSortedProducts = useMemo(() => {
+    let filtered = products.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            product.brand.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(product.category);
-      
       const matchesBrand = selectedBrands.size === 0 || selectedBrands.has(product.brand);
       
       let matchesPrice = selectedPriceRanges.size === 0;
@@ -260,7 +237,6 @@ export default function ProductsMainSection() {
       return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
     });
 
-    // Ordenar productos
     switch (sortBy) {
       case "price-low":
         filtered.sort((a, b) => a.price - b.price);
@@ -279,62 +255,10 @@ export default function ProductsMainSection() {
     }
 
     return filtered;
-  }, [searchTerm, selectedCategories, selectedBrands, selectedPriceRanges, sortBy]);
+  }, [products, searchTerm, selectedCategories, selectedBrands, selectedPriceRanges, sortBy]);
 
-  const toggleCategory = (category) => {
-    setSelectedCategories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(category)) {
-        newSet.delete(category);
-      } else {
-        newSet.add(category);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleBrand = (brand) => {
-    setSelectedBrands(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(brand)) {
-        newSet.delete(brand);
-      } else {
-        newSet.add(brand);
-      }
-      return newSet;
-    });
-  };
-
-  const togglePriceRange = (rangeId) => {
-    setSelectedPriceRanges(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(rangeId)) {
-        newSet.delete(rangeId);
-      } else {
-        newSet.add(rangeId);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleFavorite = (productId) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(productId)) {
-        newFavorites.delete(productId);
-      } else {
-        newFavorites.add(productId);
-      }
-      return newFavorites;
-    });
-  };
-
-  const clearAllFilters = () => {
-    setSelectedCategories(new Set());
-    setSelectedBrands(new Set());
-    setSelectedPriceRanges(new Set());
-    setSearchTerm("");
-  };
+  if (loading) return <p>Cargando productos...</p>;
+  if (!loading && products.length === 0) return <p>No hay productos disponibles 🛒</p>;
 
   const totalFilters = selectedCategories.size + selectedBrands.size + selectedPriceRanges.size;
 
@@ -342,34 +266,24 @@ export default function ProductsMainSection() {
     <div className="products-container">
       <div className="products-wrapper">
         <div className="products-header-layout">
-          {/* Sidebar space placeholder for alignment */}
-          <div className="sidebar-spacer">
-            {/* Empty space to align with sidebar */}
-          </div>
-          
-          {/* Header aligned with main content */}
+          <div className="sidebar-spacer"></div>
           <div className="header-content">
-            {/* Breadcrumb */}
             <nav className="breadcrumb">
-              <a href="/"className="breadcrumb-item">Home</a>
+              <a href="/" className="breadcrumb-item">Home</a>
               <span className="breadcrumb-separator">/</span>
               <span className="breadcrumb-current">Productos</span>
             </nav>
-
           </div>
         </div>
 
         <div className="main-layout">
-          {/* Sidebar - Filtros */}
+          {/* Sidebar */}
           <div className="sidebar">
             <div className="filters-container">
               <div className="filters-header">
                 <h2 className="filters-title">Filtros</h2>
                 {totalFilters > 0 && (
-                  <button
-                    onClick={clearAllFilters}
-                    className="clear-filters-btn"
-                  >
+                  <button onClick={clearAllFilters} className="clear-filters-btn">
                     Limpiar ({totalFilters})
                   </button>
                 )}
@@ -388,11 +302,8 @@ export default function ProductsMainSection() {
                           type="checkbox"
                           checked={selectedCategories.has(category.id)}
                           onChange={() => toggleCategory(category.id)}
-                          className="filter-checkbox"
                         />
-                        <span className="filter-label">
-                          {category.name}
-                        </span>
+                        <span className="filter-label">{category.name}</span>
                       </label>
                     ))}
                   </div>
@@ -410,11 +321,8 @@ export default function ProductsMainSection() {
                           type="checkbox"
                           checked={selectedPriceRanges.has(range.id)}
                           onChange={() => togglePriceRange(range.id)}
-                          className="filter-checkbox"
                         />
-                        <span className="filter-label">
-                          {range.label}
-                        </span>
+                        <span className="filter-label">{range.label}</span>
                       </label>
                     ))}
                   </div>
@@ -432,11 +340,8 @@ export default function ProductsMainSection() {
                           type="checkbox"
                           checked={selectedBrands.has(brand)}
                           onChange={() => toggleBrand(brand)}
-                          className="filter-checkbox"
                         />
-                        <span className="filter-label">
-                          {brand}
-                        </span>
+                        <span className="filter-label">{brand}</span>
                       </label>
                     ))}
                   </div>
@@ -447,8 +352,7 @@ export default function ProductsMainSection() {
 
           {/* Main Content */}
           <div className="main-content">
-            {/* Search and Sort Bar */}
-            <div className=".search-sort-bar">
+            <div className="search-sort-bar">
               <div className="search-sort-content">
                 <div className="search-container">
                   <Search className="search-icon" />
@@ -457,7 +361,6 @@ export default function ProductsMainSection() {
                     placeholder="Buscar productos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
                   />
                 </div>
                 
@@ -470,7 +373,6 @@ export default function ProductsMainSection() {
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="sort-select"
                     >
                       {sortOptions.map(option => (
                         <option key={option.value} value={option.value}>
@@ -484,7 +386,6 @@ export default function ProductsMainSection() {
               </div>
             </div>
 
-            {/* Products Grid */}
             <div className="products-grid">
               {filteredAndSortedProducts.map(product => (
                 <ProductCard
@@ -497,33 +398,12 @@ export default function ProductsMainSection() {
               ))}
             </div>
 
-            {/* No Results */}
             {filteredAndSortedProducts.length === 0 && (
               <div className="no-result">
-                <div className="no-result-icon">
-                  <Search className="no-result-icon svg" />
-                </div>
-                <h3 className="no-result-text">
-                  No se encontraron productos
-                </h3>
-                <p className="no-result-text">
-                  Intenta ajustar tus filtros o términos de búsqueda
-                </p>
-                <button
-                  onClick={clearAllFilters}
-                  className="no-result-btn"
-                >
-                  Limpiar Filtros
-                </button>
-              </div>
-            )}
-
-            {/* Load More */}
-            {filteredAndSortedProducts.length > 0 && (
-              <div className="load-more">
-                <button className="load-more-btn">
-                  Cargar más productos
-                </button>
+                <Search className="no-result-icon svg" />
+                <h3>No se encontraron productos</h3>
+                <p>Intenta ajustar tus filtros o términos de búsqueda</p>
+                <button onClick={clearAllFilters}>Limpiar Filtros</button>
               </div>
             )}
           </div>
