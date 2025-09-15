@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, Button, Card, CardHeader, CardContent, CardTitle } from "react"
+import useState from "react"
 import "../styles/Login-form.css"
+import { Link } from "react-router-dom"
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -126,9 +127,9 @@ export function LoginForm() {
               <input type="checkbox" className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" />
               <span className="ml-2 text-sm text-emerald-700">Recordarme</span>
             </label>
-            <a href="/recover" className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors">
+            <Link to="/recover" className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors">
               ¿Olvidaste tu contraseña?
-            </a>
+            </Link>
           </div>
 
           {/* Submit button */}
@@ -143,9 +144,9 @@ export function LoginForm() {
           <div className="text-center">
             <span className="text-sm text-emerald-700">
               ¿No tienes cuenta?{" "}
-              <a href="/register" className="font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
+              <Link to="/register" className="font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
                 Regístrate aquí
-              </a>
+              </Link>
             </span>
           </div>
         </form>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import useState from "react"
 import "../styles/Login-form.css"
 
 export function RecoverForm() {
