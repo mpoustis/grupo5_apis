@@ -18,12 +18,11 @@ const categories = [
 
 const brands = ["TechPro", "SoundMax", "TimeSync", "DigitalPro", "GameForce", "PhotoMax", "VoiceTech", "AirPro"];
 
+const publicationStatus = [{ value: true, label: "Público" },{ value: false, label: "No público" }];
+
 const sortOptions = [
-  { value: "featured", label: "Destacados" },
   { value: "price-low", label: "Precio: Menor a..." },
   { value: "price-high", label: "Precio: Mayor a..." },
-  { value: "rating", label: "Mejor Valorados" },
-  { value: "newest", label: "Más Nuevos" }
 ];
 
 const priceRanges = [
@@ -127,15 +126,16 @@ export default function ProductsMainSection() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState(new Set());
+  const [selectedPublicationStatus, setSelectedPublicationStatus] = useState("true");
   const [selectedBrands, setSelectedBrands] = useState(new Set());
   const [selectedPriceRanges, setSelectedPriceRanges] = useState(new Set());
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("price-low");
   const [favorites, setFavorites] = useState(new Set());
   const [sidebarOpen, setSidebarOpen] = useState({
     categories: true,
     priceRange: true,
     brands: true,
-    ratings: false
+    publicationStatus: false
   });
 
   // 🔹 Traer productos desde API
@@ -144,31 +144,14 @@ export default function ProductsMainSection() {
   setLoading(true);
   try {
     const opts = {
-      onlyPublic: true, 
+      onlyPublic: selectedPublicationStatus === "true", 
       categories: Array.from(selectedCategories),
       order: sortBy === "price-low" ? "asc" : sortBy === "price-high" ? "desc" : null
     };
 
     const data = await listProducts(opts);
 
-    const filtered = data.filter(product => {
-      // marcas
-      const matchesBrand = selectedBrands.size === 0 || selectedBrands.has(product.brand);
-
-      // rangos de precio
-      const matchesPrice = selectedPriceRanges.size === 0 || Array.from(selectedPriceRanges).some(rangeId => {
-        const range = priceRanges.find(r => r.id === rangeId);
-        return range && product.price >= range.min && product.price <= range.max;
-      });
-
-      // búsqueda
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            product.brand.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesBrand && matchesPrice && matchesSearch;
-    });
-
-    setProducts(filtered);
+    setProducts(data);
   } catch (err) {
     console.error("Error al cargar productos:", err);
   } finally {
@@ -176,12 +159,16 @@ export default function ProductsMainSection() {
   }
 };
     fetchProducts();
-  }, [selectedCategories, selectedBrands, selectedPriceRanges, sortBy, searchTerm]);
+  }, [selectedCategories, selectedPublicationStatus, sortBy]);
 
   // 🔹 Manejo de carrito y favoritos
   const handleAddToCart = (product) => {
     addToCart(product);
     console.log(`${product.name} agregado al carrito`);
+  };
+
+  const handlePublicationStatusChange = (value) => {
+    setSelectedPublicationStatus(value.toString());
   };
 
   const toggleFavorite = (productId) => {
@@ -214,16 +201,18 @@ export default function ProductsMainSection() {
     setSelectedCategories(new Set());
     setSelectedBrands(new Set());
     setSelectedPriceRanges(new Set());
+    setSelectedPublicationStatus("true");    
     setSearchTerm("");
   };
 
   // 🔹 Filtrado y ordenamiento
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesSearch = !searchTerm.trim() || 
+        (product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesCategory = selectedCategories.size === 0 || selectedCategories.has(product.category);
       const matchesBrand = selectedBrands.size === 0 || selectedBrands.has(product.brand);
       
       let matchesPrice = selectedPriceRanges.size === 0;
@@ -236,33 +225,16 @@ export default function ProductsMainSection() {
         });
       }
       
-      return matchesSearch && matchesCategory && matchesBrand && matchesPrice;
+      return matchesSearch && matchesBrand && matchesPrice;
     });
 
-    switch (sortBy) {
-      case "price-low":
-        filtered.sort((a, b) => parseFloat(a.price.replace('$', '')) - parseFloat(b.price.replace('$', '')));
-        break;
-      case "price-high":
-        filtered.sort((a, b) => parseFloat(b.price.replace('$', '')) - parseFloat(a.price.replace('$', '')));
-        break;
-      case "rating":
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
-      case "newest":
-        filtered.sort((a, b) => b.id - a.id);
-        break;
-      default:
-        break;
-    }
-
     return filtered;
-  }, [products, searchTerm, selectedCategories, selectedBrands, selectedPriceRanges, sortBy]);
+  }, [products, searchTerm, selectedBrands, selectedPriceRanges]);
 
   if (loading) return <p>Cargando productos...</p>;
   if (!loading && products.length === 0) return <p>No hay productos disponibles 🛒</p>;
 
-  const totalFilters = selectedCategories.size + selectedBrands.size + selectedPriceRanges.size;
+  const totalFilters = selectedCategories.size + selectedBrands.size + selectedPriceRanges.size + (searchTerm ? 1 : 0) + (selectedPublicationStatus !== "true" ? 1 : 0);
 
   return (
     <div className="products-container">
@@ -348,6 +320,30 @@ export default function ProductsMainSection() {
                     ))}
                   </div>
                 </FilterSection>
+
+                <FilterSection
+                  title="Estado de la publicación"
+                  isOpen={sidebarOpen.publicationStatus}
+                  onToggle={() => setSidebarOpen(prev => ({ ...prev, publicationStatus: !prev.publicationStatus }))}
+                >
+                  <div className="filter-options">
+                    {publicationStatus.map(status => (
+                      <label key={status.value} className="filter-option">
+                        <input
+                          type="radio"
+                          name="publicationStatus"
+                          checked={selectedPublicationStatus === status.value.toString()}
+                          onChange={() => handlePublicationStatusChange(status.value)}
+                          className="filter-radio"
+                          disabled={loading}
+                        />
+                        <span className="filter-label">
+                          {status.label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </FilterSection>
               </div>
             </div>
           </div>
@@ -361,6 +357,7 @@ export default function ProductsMainSection() {
                   <input
                     type="text"
                     placeholder="Buscar productos..."
+                    className="search-input"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
