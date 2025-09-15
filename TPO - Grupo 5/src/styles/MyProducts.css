@@ -92,7 +92,7 @@
 }
 
 /* Info */
-.my-product__info { flex: 1; padding: 0 1rem; }
+.my-product__info { flex: 1; padding: 0 1rem; min-width: 0; }
 .my-product__name {
   font-weight: 600;
   font-size: 1rem;
