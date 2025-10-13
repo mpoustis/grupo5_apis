@@ -19,7 +19,7 @@ public class User {
     private String email;
     private String password;
     
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "buyer", fetch = FetchType.LAZY)
     private List<Order> pedidos;
 
 }
