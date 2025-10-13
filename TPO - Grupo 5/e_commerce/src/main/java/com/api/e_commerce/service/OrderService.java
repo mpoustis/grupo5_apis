@@ -13,8 +13,8 @@ import com.api.e_commerce.dto.OrderItemDTO;
 import com.api.e_commerce.dto.OrderItemDetailDTO;
 import com.api.e_commerce.model.Order;
 import com.api.e_commerce.model.OrderItem;
-import com.api.e_commerce.model.Producto;
-import com.api.e_commerce.model.Usuario;
+import com.api.e_commerce.model.Product;
+import com.api.e_commerce.model.User;
 import com.api.e_commerce.repository.OrderItemRepository;
 import com.api.e_commerce.repository.OrderRepository;
 import com.api.e_commerce.repository.ProductoRepository;
@@ -52,7 +52,7 @@ public class OrderService {
 
     // Crear una orden con sus ítems
     public OrderDTO createOrder(CreateOrderDTO createOrderDTO) {
-        Usuario buyer = usuarioRepository.findById(createOrderDTO.getBuyerId())
+        User buyer = usuarioRepository.findById(createOrderDTO.getBuyerId())
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Order order = new Order();
@@ -61,7 +61,7 @@ public class OrderService {
 
         // Mapeo de ítems y cálculo del total
         List<OrderItem> items = createOrderDTO.getItems().stream().map(itemDTO -> {
-            Producto product = productoRepository.findById(itemDTO.getProductId())
+            Product product = productoRepository.findById(itemDTO.getProductId())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado con id: " + itemDTO.getProductId()));
 
             OrderItem item = new OrderItem();
