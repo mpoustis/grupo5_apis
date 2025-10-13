@@ -8,7 +8,7 @@ import java.util.ArrayList;
 @Data
 @Entity
 @Table(name = "categorias")
-public class Categoria {
+public class Category {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,5 +19,5 @@ public class Categoria {
 
     
     @ManyToMany(mappedBy = "categorias")
-    private List<Producto> productos = new ArrayList<>();
+    private List<Product> productos = new ArrayList<>();
 }

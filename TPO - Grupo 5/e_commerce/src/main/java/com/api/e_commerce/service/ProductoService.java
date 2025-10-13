@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.api.e_commerce.model.Producto;
+import com.api.e_commerce.model.Product;
 import com.api.e_commerce.repository.ProductoRepository;
 import com.api.e_commerce.dto.ProductoUpdateDTO;
 
@@ -17,15 +17,15 @@ public class ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    public List<Producto> getAllProductos() {
+    public List<Product> getAllProductos() {
         return productoRepository.findAll();
     }
 
-    public Producto getProductoById(Long id) {
+    public Product getProductoById(Long id) {
         return productoRepository.findById(id).orElse(null);
     }
 
-    public Producto saveProducto(Producto producto) {
+    public Product saveProducto(Product producto) {
         return productoRepository.save(producto);
     }
 
@@ -33,7 +33,7 @@ public class ProductoService {
         productoRepository.deleteById(id);
     }    
 
-    public Producto updateProducto(Long id, ProductoUpdateDTO productoDTO) {
+    public Product updateProducto(Long id, ProductoUpdateDTO productoDTO) {
         return productoRepository.findById(id)
             .map(producto -> {
                 producto.setPrecio(productoDTO.getPrecio());

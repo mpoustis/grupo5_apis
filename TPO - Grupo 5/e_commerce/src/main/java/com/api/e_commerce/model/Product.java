@@ -8,7 +8,7 @@ import java.util.ArrayList;
 @Data
 @Entity
 @Table(name = "productos")
-public class Producto {
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +29,7 @@ public class Producto {
         joinColumns = @JoinColumn(name = "producto_id"),
         inverseJoinColumns = @JoinColumn(name = "categoria_id")
     )
-    private List<Categoria> categorias = new ArrayList<>();
+    private List<Category> categorias = new ArrayList<>();
     
 
 }

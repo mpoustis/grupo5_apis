@@ -16,8 +16,8 @@ public class Order {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false) // <- TODO verificar el nombre de la columna
-    private Usuario buyer; // <- TODO verificar la tabla de usuarios
+    @JoinColumn(name = "user_id", nullable = false) 
+    private User buyer; 
 
     @Column(nullable = false)
     private String status = "pending"; //OPCIONES: pending, paid, shipped, delivered, cancelled
