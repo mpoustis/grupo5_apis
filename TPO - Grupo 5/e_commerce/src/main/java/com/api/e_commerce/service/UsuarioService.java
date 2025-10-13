@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
 
-import com.api.e_commerce.model.Usuario;
+import com.api.e_commerce.model.User;
 import com.api.e_commerce.repository.UsuarioRepository;
 
 @Service
@@ -17,12 +17,12 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     //getAllUsuarios 
-    public List<Usuario> getAllUsuarios() {
+    public List<User> getAllUsuarios() {
         return usuarioRepository.findAll();
     }
 
     //saveUsuario
-    public Usuario save(Usuario usuario) {
+    public User save(User usuario) {
         return usuarioRepository.save(usuario);
     }
     

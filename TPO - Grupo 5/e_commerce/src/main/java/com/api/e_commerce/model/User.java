@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "usuarios")
-public class Usuario {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,6 +20,6 @@ public class Usuario {
     private String password;
     
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
-    private List<Pedido> pedidos;
+    private List<Order> pedidos;
 
 }
