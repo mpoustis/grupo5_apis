@@ -24,4 +24,9 @@ public class UsuarioController {
     public User addUsuario(@RequestBody User usuario) {
         return usuarioService.save(usuario);
     }
+
+    @GetMapping("/{id}")
+    public User getUsuarioById(@PathVariable Long id) {
+        return usuarioService.getUserById(id);
+    }
 }

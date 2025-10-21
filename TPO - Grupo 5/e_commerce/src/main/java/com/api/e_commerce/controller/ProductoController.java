@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.api.e_commerce.model.Product;
 import com.api.e_commerce.service.ProductoService;
 import com.api.e_commerce.dto.ProductoUpdateDTO;
+import com.api.e_commerce.dto.ProductoCreateDTO;
 
 @RestController
 @RequestMapping("/api/productos") //localhost:8080/api/productos del locahost:8080/api/productos/id
@@ -30,10 +31,9 @@ public class ProductoController {
 
     //https://localhost:8080/api/productos con metodo POST http, enviar un body
     @PostMapping
-    //TODO: ssanchez - cambiar Producto por ProductoCreateDTO, es mala práctica recibir la entidad, debe recibir un DTO
-    // ProductoCreateDTO debe tener los campos obligatorios para crear un producto
-    public Product addProducto(@RequestBody Product producto) {
-        return productoService.saveProducto(producto);
+  
+    public Product addProducto(@RequestBody ProductoCreateDTO productoDTO) {
+        return productoService.createProducto(productoDTO);
     }    //https://localhost:8080/api/productos/1 con metodo put http, enviar un body
     
     @PutMapping("/{id}")
