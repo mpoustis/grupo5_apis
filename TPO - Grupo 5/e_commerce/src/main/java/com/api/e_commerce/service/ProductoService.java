@@ -1,38 +1,69 @@
 package com.api.e_commerce.service;
 
+import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.api.e_commerce.dto.*;
+import com.api.e_commerce.model.Category;
+import com.api.e_commerce.model.Image;
+import com.api.e_commerce.repository.CategoryRepository;
+import com.api.e_commerce.repository.ImagenProductoRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.api.e_commerce.model.Product;
 import com.api.e_commerce.model.User;
 import com.api.e_commerce.repository.ProductoRepository;
-import com.api.e_commerce.dto.ProductoCreateDTO;
-import com.api.e_commerce.dto.ProductoUpdateDTO;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class ProductoService {
-    
-    @Autowired
+
     private ProductoRepository productoRepository;
-
-    @Autowired
     private UsuarioService usuarioService;
+    private ImagenService imagenService;
+    private ImagenProductoRepository imagenProductoRepository;
+    private CategoryRepository categoryRepository;
 
-    public Product createProducto(ProductoCreateDTO dto) {
+    @Transactional
+    public ResponseEntity<Product> createProducto(ProductoCreateDTO dto) {
+
+        User owner = usuarioService.getUserById(dto.getOwnerId());
+        List<Category> categories = categoryRepository.findAllById(dto.getCategoriaIds());
+
         Product producto = new Product();
         producto.setNombre(dto.getNombre());
         producto.setDescripcion(dto.getDescripcion());
         producto.setPrecio(dto.getPrecio());
         producto.setStock(dto.getStock());
+        producto.setCategorias(categories);
 
-        User owner = usuarioService.getUserById(dto.getOwnerId());
         producto.setOwner(owner);
 
-        return productoRepository.save(producto);
+        producto = productoRepository.save(producto);
+
+        if(dto.getImages() != null && !dto.getImages().isEmpty()){
+            List<String> urlsImages = imagenService.guardarImagenes(
+                    dto.getImages(),
+                    producto.getId()
+            );
+
+            for(int i = 0; i < urlsImages.size(); i++){
+                Image image = new Image();
+                image.setProducto(producto);
+                image.setUrl(urlsImages.get(i));
+                image.setPosition(i+1);
+
+                imagenProductoRepository.save(image);
+            }
+        }
+        Product productoGuardado = productoRepository.findById(producto.getId()).orElse(producto);
+        return new ResponseEntity<>(productoGuardado, HttpStatus.CREATED);
     }
 
     public List<Product> getAllProductos() {
