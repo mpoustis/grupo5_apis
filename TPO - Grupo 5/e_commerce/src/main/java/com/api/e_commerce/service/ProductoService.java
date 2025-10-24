@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.api.e_commerce.model.Product;
+import com.api.e_commerce.model.User;
 import com.api.e_commerce.repository.ProductoRepository;
+import com.api.e_commerce.dto.ProductoCreateDTO;
 import com.api.e_commerce.dto.ProductoUpdateDTO;
 
 @Service
@@ -16,6 +18,22 @@ public class ProductoService {
     
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    public Product createProducto(ProductoCreateDTO dto) {
+        Product producto = new Product();
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setStock(dto.getStock());
+
+        User owner = usuarioService.getUserById(dto.getOwnerId());
+        producto.setOwner(owner);
+
+        return productoRepository.save(producto);
+    }
 
     public List<Product> getAllProductos() {
         return productoRepository.findAll();

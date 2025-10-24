@@ -17,6 +17,11 @@ public class Product {
     private String nombre;
     
     private String descripcion;
+
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner", nullable = false) 
+    private User owner; 
     
     @Column(nullable = false)
     private Double precio;    

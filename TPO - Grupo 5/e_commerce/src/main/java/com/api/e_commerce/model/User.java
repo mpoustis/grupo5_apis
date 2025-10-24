@@ -22,4 +22,6 @@ public class User {
     @OneToMany(mappedBy = "buyer", fetch = FetchType.LAZY)
     private List<Order> pedidos;
 
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private List<Product> productos;
 }
