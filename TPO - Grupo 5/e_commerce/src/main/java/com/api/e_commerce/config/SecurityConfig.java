@@ -78,6 +78,17 @@ public class SecurityConfig {
     }
 
     // Configura las reglas de seguridad para las diferentes rutas de la API
+    // @Bean // DESMARCAR PARA TESTEAR SIN SEGURIDADs
+    // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    //     http
+    //         .csrf(csrf -> csrf.disable())   // Desactiva protección CSRF
+    //         .cors(cors -> {})               // Habilita CORS por si Swagger lo necesita
+    //         .authorizeHttpRequests(auth -> auth
+    //             .anyRequest().permitAll() 
+    //         );
+
+    //     return http.build();
+    // }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // http
@@ -92,20 +103,30 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas que no requieren autenticación
+                        .requestMatchers(
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/swagger-resources/**",
+                            "/webjars/**"
+                        ).permitAll()
+                                        // Rutas públicas que no requieren autenticación
                         .requestMatchers("/api/usuarios/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
 
                         // Rutas que requieren autenticación para modificar productos
-                        .requestMatchers(HttpMethod.POST, "/api/productos").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/productos").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").authenticated()
+                        // orders
 
+                        .requestMatchers(HttpMethod.GET, "/api/orders/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/productos").permitAll()
                         // Rutas exclusivas para administradores
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // Rutas de pedidos solo para usuarios autenticados
-                        .requestMatchers("/api/pedidos/**").authenticated()
+                        .requestMatchers("/api/pedidos/**").permitAll()
 
                         // Cualquier otra ruta requiere autenticación
                         // con esta linea abarca requiere que todos los endpoints esten autenticados

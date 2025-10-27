@@ -1,6 +1,5 @@
 package com.api.e_commerce.service;
 
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.web.multipart.MultipartFile;
@@ -97,13 +96,43 @@ public class ProductoService {
         return new ResponseEntity<>(productoGuardado, HttpStatus.CREATED);
     }
 
-    public List<Product> getAllProductos() {
-        return productoRepository.findAll();
+    public List<ProductoDTO> getAllProductos() {
+        return productoRepository.findAll().stream()
+                .map(product -> {
+                    ProductoDTO dto = new ProductoDTO();
+                    dto.setNombre(product.getNombre());
+                    dto.setDescripcion(product.getDescripcion());
+                    dto.setPrecio(product.getPrecio());
+                    dto.setStock(product.getStock());
+                    dto.setOwnerId(product.getOwner().getId());
+                    dto.setCategoriaIds(
+                            product.getCategorias().stream()
+                                    .map(Category::getId)
+                                    .toList()
+                    );
+                    return dto;
+                })
+                .toList();
     }
 
-    public Product getProductoById(Long id) {
+    public ProductoDTO getProductoById(Long id) {
         return productoRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
+                .map(product -> {
+                    ProductoDTO dto = new ProductoDTO();
+                    dto.setNombre(product.getNombre());
+                    dto.setDescripcion(product.getDescripcion());
+                    dto.setPrecio(product.getPrecio());
+                    dto.setStock(product.getStock());
+                    dto.setOwnerId(product.getOwner().getId());
+                    dto.setCategoriaIds(
+                            product.getCategorias().stream()
+                                    .map(Category::getId)
+                                    .toList()
+                    );
+                    return dto;
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
+        // return productoRepository.findById(id).orElse(null);
     }
 
     public Product saveProducto(Product producto) {
