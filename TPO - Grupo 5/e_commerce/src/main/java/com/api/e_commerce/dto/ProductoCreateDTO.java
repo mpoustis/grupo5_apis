@@ -11,4 +11,7 @@ public class ProductoCreateDTO {
     private Integer stock;
     private Long ownerId;
     private List<Long> categoriaIds;
+    public List<String> getImages() {
+        throw new UnsupportedOperationException("Unimplemented method 'getImages'");
+    }
 }

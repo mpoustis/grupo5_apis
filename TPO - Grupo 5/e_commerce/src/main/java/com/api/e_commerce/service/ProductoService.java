@@ -1,8 +1,6 @@
 package com.api.e_commerce.service;
 
-import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.api.e_commerce.dto.*;
 import com.api.e_commerce.model.Category;
