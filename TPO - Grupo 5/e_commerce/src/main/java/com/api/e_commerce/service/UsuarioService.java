@@ -12,6 +12,8 @@ import com.api.e_commerce.dto.RegisterRequest;
 import com.api.e_commerce.model.Role;
 import com.api.e_commerce.model.User;
 import com.api.e_commerce.repository.UsuarioRepository;
+import com.api.e_commerce.exception.DuplicateEntityException;
+import com.api.e_commerce.exception.ResourceNotFoundException;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class UsuarioService {
 
         if (usuarioRepository.existsByEmail(request.getEmail())) { 
             /* crear excepcion*/
-            throw new RuntimeException("Email ya registrado");
+            throw new DuplicateEntityException("usuario", "email", email);
         }
 
         User usuario = User.builder()
