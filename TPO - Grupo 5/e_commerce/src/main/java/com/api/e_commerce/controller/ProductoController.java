@@ -10,6 +10,7 @@ import com.api.e_commerce.model.Product;
 import com.api.e_commerce.service.ProductoService;
 import com.api.e_commerce.dto.ProductoUpdateDTO;
 import com.api.e_commerce.dto.ProductoCreateDTO;
+import com.api.e_commerce.dto.ProductoDTO;
 
 @RestController
 @RequestMapping("/api/productos") //localhost:8080/api/productos del locahost:8080/api/productos/id
@@ -20,13 +21,13 @@ public class ProductoController {
 
     //https://localhost:8080/api/productos con metodo get http
     @GetMapping
-    public List<Product> getAllProductos() {
+    public List<ProductoDTO> getAllProductos() {
         return productoService.getAllProductos();
     }
 
     // https://localhost:8080/api/productos/3 con metodo get http
     @GetMapping("/{id}")
-    public Product getProductoById(@PathVariable Long id) {
+    public ProductoDTO getProductoById(@PathVariable Long id) {
         return productoService.getProductoById(id);
     }
 
