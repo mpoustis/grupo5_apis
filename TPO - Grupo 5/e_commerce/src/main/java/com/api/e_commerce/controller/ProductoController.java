@@ -3,9 +3,8 @@ package com.api.e_commerce.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
 import com.api.e_commerce.model.Product;
 import com.api.e_commerce.service.ProductoService;
 import com.api.e_commerce.dto.ProductoUpdateDTO;
@@ -32,7 +31,7 @@ public class ProductoController {
 
     //https://localhost:8080/api/productos con metodo POST http, enviar un body
     @PostMapping
-  
+
     public ResponseEntity<Product> addProducto(@RequestBody ProductoCreateDTO productoDTO) {
         return productoService.createProducto(productoDTO);
     }    //https://localhost:8080/api/productos/1 con metodo put http, enviar un body

@@ -6,12 +6,10 @@ import java.util.List;
 @Data
 public class ProductoCreateDTO {
     private String nombre;
+    private double precio;
+    private int stock;
     private String descripcion;
-    private Double precio;
-    private Integer stock;
     private Long ownerId;
     private List<Long> categoriaIds;
-    public List<String> getImages() {
-        throw new UnsupportedOperationException("Unimplemented method 'getImages'");
-    }
+    private List<String> images;
 }
