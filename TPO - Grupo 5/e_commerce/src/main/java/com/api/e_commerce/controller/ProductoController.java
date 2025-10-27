@@ -3,12 +3,20 @@ package com.api.e_commerce.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.api.e_commerce.dto.ProductoCreateDTO;
+import com.api.e_commerce.dto.ProductoUpdateDTO;
 import com.api.e_commerce.model.Product;
 import com.api.e_commerce.service.ProductoService;
-import com.api.e_commerce.dto.ProductoUpdateDTO;
-import com.api.e_commerce.dto.ProductoCreateDTO;
 
 @RestController
 @RequestMapping("/api/productos") //localhost:8080/api/productos del locahost:8080/api/productos/id

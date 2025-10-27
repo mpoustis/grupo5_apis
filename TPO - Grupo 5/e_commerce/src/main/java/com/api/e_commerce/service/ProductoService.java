@@ -1,23 +1,23 @@
 package com.api.e_commerce.service;
 
-import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.api.e_commerce.dto.*;
-import com.api.e_commerce.model.Category;
-import com.api.e_commerce.model.Image;
-import com.api.e_commerce.repository.CategoryRepository;
-import com.api.e_commerce.repository.ImagenProductoRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.api.e_commerce.dto.ProductoCreateDTO;
+import com.api.e_commerce.dto.ProductoUpdateDTO;
+import com.api.e_commerce.model.Category;
+import com.api.e_commerce.model.Image;
 import com.api.e_commerce.model.Product;
 import com.api.e_commerce.model.User;
+import com.api.e_commerce.repository.CategoryRepository;
+import com.api.e_commerce.repository.ImagenProductoRepository;
 import com.api.e_commerce.repository.ProductoRepository;
+
+import lombok.AllArgsConstructor;
 
 @Service
 @Transactional

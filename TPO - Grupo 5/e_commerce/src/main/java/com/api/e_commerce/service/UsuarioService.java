@@ -1,6 +1,8 @@
 package com.api.e_commerce.service;
 
 
+import java.util.List;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,7 +15,6 @@ import com.api.e_commerce.model.Role;
 import com.api.e_commerce.model.User;
 import com.api.e_commerce.repository.UsuarioRepository;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @Service

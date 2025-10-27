@@ -1,9 +1,10 @@
 package com.api.e_commerce.repository;
 
-import com.api.e_commerce.model.Image;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.api.e_commerce.model.Image;
 
 public interface ImagenProductoRepository extends JpaRepository<Image, Long> {
     List<Image> findByProductoId(Long productoId);
