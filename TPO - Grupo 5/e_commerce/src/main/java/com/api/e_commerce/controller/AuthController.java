@@ -4,12 +4,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
-import com.api_e_commerce.dto.LoginRequest;
-import com.api_e_commerce.dto.RegisterRequest;
-import com.api_e_commerce.dto.AuthResponse;
-import com.api_e_commerce.model.User;
-import com.api_e_commerce.repository.UsuarioRepository;
-import com.api_e_commerce.security.JwtService;
+import com.api.e_commerce.dto.AuthResponse;
+import com.api.e_commerce.dto.LoginRequest;
+import com.api.e_commerce.dto.RegisterRequest;
+import com.api.e_commerce.model.User;
+import com.api.e_commerce.repository.UsuarioRepository;
+import com.api.e_commerce.security.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
