@@ -1,5 +1,8 @@
 package com.api.e_commerce.service;
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,10 +11,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-
-import org.springframework.stereotype.Service;
-
-import jakarta.annotation.PostConstruct;
 
 @Service
 public class ImagenService {
@@ -23,13 +22,13 @@ public class ImagenService {
         try {
             Files.createDirectories(Paths.get(uploadDir));
         } catch (IOException e) {
-            throw new RuntimeException("No se pudo crear el directorio de uploads", e);
+            throw new DatabaseOperationException("No se pudo crear el directorio de uploads: " + e.getMessage(), e);
         }
     }
 
     public String guardarImagen(String base64Image, Long productId) throws IOException {
         if (base64Image == null || base64Image.isEmpty()) {
-            throw new IllegalArgumentException("La imagen base64 está vacía");
+            throw new InvalidImageException("La imagen base64 está vacía");
         }
 
         // Eliminar el prefijo "data:image/jpeg;base64," si existe
@@ -57,7 +56,7 @@ public class ImagenService {
                 String url = guardarImagen(base64, productoId);
                 urls.add(url);
             } catch (IOException e) {
-                throw new RuntimeException("Error al guardar imagen", e);
+                throw new DatabaseOperationException("Error al guardar imagen: " + e.getMessage(), e);
             }
         }
         return urls;

@@ -1,8 +1,6 @@
 package com.api.e_commerce.service;
 
 
-import java.util.List;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +12,10 @@ import com.api.e_commerce.dto.RegisterRequest;
 import com.api.e_commerce.model.Role;
 import com.api.e_commerce.model.User;
 import com.api.e_commerce.repository.UsuarioRepository;
+import com.api.e_commerce.exception.DuplicateEntityException;
+import com.api.e_commerce.exception.ResourceNotFoundException;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,7 +31,7 @@ public class UsuarioService {
 
         if (usuarioRepository.existsByEmail(request.getEmail())) { 
             /* crear excepcion*/
-            throw new RuntimeException("Email ya registrado");
+            throw new DuplicateEntityException("usuario", "email", email);
         }
 
         User usuario = User.builder()

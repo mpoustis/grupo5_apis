@@ -4,19 +4,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.api.e_commerce.dto.ProductoCreateDTO;
-import com.api.e_commerce.dto.ProductoUpdateDTO;
 import com.api.e_commerce.model.Product;
 import com.api.e_commerce.service.ProductoService;
+import com.api.e_commerce.dto.ProductoUpdateDTO;
+import com.api.e_commerce.dto.ProductoCreateDTO;
+import com.api.e_commerce.dto.ProductoDTO;
 
 @RestController
 @RequestMapping("/api/productos") //localhost:8080/api/productos del locahost:8080/api/productos/id
@@ -27,19 +21,19 @@ public class ProductoController {
 
     //https://localhost:8080/api/productos con metodo get http
     @GetMapping
-    public List<Product> getAllProductos() {
+    public List<ProductoDTO> getAllProductos() {
         return productoService.getAllProductos();
     }
 
     // https://localhost:8080/api/productos/3 con metodo get http
     @GetMapping("/{id}")
-    public Product getProductoById(@PathVariable Long id) {
+    public ProductoDTO getProductoById(@PathVariable Long id) {
         return productoService.getProductoById(id);
     }
 
     //https://localhost:8080/api/productos con metodo POST http, enviar un body
     @PostMapping
-
+  
     public ResponseEntity<Product> addProducto(@RequestBody ProductoCreateDTO productoDTO) {
         return productoService.createProducto(productoDTO);
     }    //https://localhost:8080/api/productos/1 con metodo put http, enviar un body
