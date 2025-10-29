@@ -1,21 +1,25 @@
 package com.api.e_commerce.config;
 
+import com.api.e_commerce.repository.UsuarioRepository;
+import com.api.e_commerce.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import com.api.e_commerce.repository.UsuarioRepository;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 // Indica que esta clase contiene configuraciones de Spring
 @Configuration
@@ -26,7 +30,12 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
     // Inyección del repositorio de usuarios
-    private final UsuarioRepository usuarioRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
 
     // Cargar los datos del usuario desde tu sistema a través de UsuarioRepository
     @Bean
@@ -77,6 +86,15 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
     // Configura las reglas de seguridad para las diferentes rutas de la API
     // @Bean // DESMARCAR PARA TESTEAR SIN SEGURIDADs
     // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -86,9 +104,10 @@ public class SecurityConfig {
     //         .authorizeHttpRequests(auth -> auth
     //             .anyRequest().permitAll() 
     //         );
-
+    //
     //     return http.build();
     // }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // http
@@ -97,11 +116,16 @@ public class SecurityConfig {
         //                 // .requestMatchers("/api/productos/**").permitAll()
         //                 .requestMatchers("/api/auth/**").permitAll()
         //                 .anyRequest().authenticated());
-
+        //
         // return http.build();
-
+        
         http
                 .csrf(csrf -> csrf.disable())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> 
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                             "/v3/api-docs/**",
@@ -110,27 +134,29 @@ public class SecurityConfig {
                             "/swagger-resources/**",
                             "/webjars/**"
                         ).permitAll()
-                                        // Rutas públicas que no requieren autenticación
+
+                        // Endpoints públicos (login y registro)
+                        .requestMatchers("/auth/**").permitAll()
+
+                        // Rutas públicas que no requieren autenticación
                         .requestMatchers("/api/usuarios/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
 
                         // Rutas que requieren autenticación para modificar productos
-                        .requestMatchers(HttpMethod.POST, "/api/productos").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/productos/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").authenticated()
-                        // orders
 
-                        .requestMatchers(HttpMethod.GET, "/api/orders/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/productos").permitAll()
+                        // Rutas de órdenes protegidas por JWT
+                        .requestMatchers("/api/orders/**").authenticated()
+
                         // Rutas exclusivas para administradores
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // Rutas de pedidos solo para usuarios autenticados
+                        // Rutas de pedidos solo para usuarios autenticados o públicos
                         .requestMatchers("/api/pedidos/**").permitAll()
 
                         // Cualquier otra ruta requiere autenticación
-                        // con esta linea abarca requiere que todos los endpoints esten autenticados
-                        // no seía necesario post, put, delete /api/productos , api/pedidos
                         .anyRequest().authenticated());
 
         return http.build();
