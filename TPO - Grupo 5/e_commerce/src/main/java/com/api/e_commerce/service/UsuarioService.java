@@ -31,7 +31,7 @@ public class UsuarioService {
 
         if (usuarioRepository.existsByEmail(request.getEmail())) { 
             /* crear excepcion*/
-            throw new DuplicateEntityException("usuario", "email", email);
+            throw new DuplicateEntityException("usuario", "email", request.getEmail());
         }
 
         User usuario = User.builder()

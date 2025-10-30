@@ -3,6 +3,8 @@ package com.api.e_commerce.dto;
 import lombok.Data;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 @Data
 public class ProductoCreateDTO {
     private String nombre;

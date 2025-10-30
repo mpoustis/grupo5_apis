@@ -3,7 +3,6 @@ package com.api.e_commerce.config;
 import com.api.e_commerce.repository.UsuarioRepository;
 import com.api.e_commerce.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,12 +13,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 
 // Indica que esta clase contiene configuraciones de Spring
 @Configuration
@@ -29,104 +28,39 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // Inyección del repositorio de usuarios
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UsuarioRepository usuarioRepository;
 
-
-    // Cargar los datos del usuario desde tu sistema a través de UsuarioRepository
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> usuarioRepository.findByEmail(username)
-                //TODO: ssanchez - capturar con globalexceptionhanlder @ControllerAdivce
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
-    }
-
-    // Recibe las credenciales del usuario (a través del UsernamePasswordAuthenticationToken)
-    // Usa el UserDetailsService para buscar el usuario en la base de datos
-    // Usa el PasswordEncoder para verificar si la contraseña proporcionada coincide con la almacenada
-    // Si todo es correcto, crea un token de autenticación; si no, lanza una excepción    
-    // @Bean
-    // public AuthenticationProvider authenticationProvider() {
-    //     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    //     authProvider.setPasswordEncoder(passwordEncoder());
-    //     authProvider.setUserDetailsService(userDetailsService());
-    //     return authProvider;
-    // }
-
-    /**
-     * AuthenticationManager es el componente central de autenticación en Spring Security.
-     * 
-     * Funcionamiento:
-     * 1. Recibe un objeto Authentication (UsernamePasswordAuthenticationToken en nuestro caso)
-     * 2. Delega la autenticación a una cadena de AuthenticationProvider configurados
-     * 3. Por defecto, usa DaoAuthenticationProvider que:
-     *    - Utiliza UserDetailsService para cargar el usuario de la base de datos
-     *    - Emplea PasswordEncoder para verificar la contraseña
-     *    - Compara las credenciales proporcionadas con las almacenadas
-     * 
-     * Proceso de autenticación:
-     * - Entrada: Credenciales sin verificar (username/password)
-     * - Proceso: Validación de credenciales
-     * - Salida: Authentication completamente autenticado con authorities
-     * 
-     * Si la autenticación falla, lanza AuthenticationException
-     */
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-    // Define el codificador de contraseñas que se usará para encriptar y verificar passwords
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService());
+        provider.setUserDetailsService(username -> 
+            usuarioRepository.findByEmail(username)
+                .orElseThrow(() -> 
+                    new UsernameNotFoundException("Usuario no encontrado: " + username))
+        );
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
 
-    // Configura las reglas de seguridad para las diferentes rutas de la API
-    // @Bean // DESMARCAR PARA TESTEAR SIN SEGURIDADs
-    // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    //     http
-    //         .csrf(csrf -> csrf.disable())   // Desactiva protección CSRF
-    //         .cors(cors -> {})               // Habilita CORS por si Swagger lo necesita
-    //         .authorizeHttpRequests(auth -> auth
-    //             .anyRequest().permitAll() 
-    //         );
-    //
-    //     return http.build();
-    // }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // http
-        //         .csrf(csrf -> csrf.disable())
-        //         .authorizeHttpRequests(auth -> auth
-        //                 // .requestMatchers("/api/productos/**").permitAll()
-        //                 .requestMatchers("/api/auth/**").permitAll()
-        //                 .anyRequest().authenticated());
-        //
-        // return http.build();
-        
         http
-                .csrf(csrf -> csrf.disable())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(session -> 
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authenticationProvider(authenticationProvider())
-                .authorizeHttpRequests(auth -> auth
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                             "/v3/api-docs/**",
                             "/swagger-ui/**",
@@ -136,10 +70,10 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // Endpoints públicos (login y registro)
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
 
                         // Rutas públicas que no requieren autenticación
-                        .requestMatchers("/api/usuarios/**").permitAll()
+                        .requestMatchers("/api/usuarios/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
 
                         // Rutas que requieren autenticación para modificar productos
@@ -154,7 +88,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // Rutas de pedidos solo para usuarios autenticados o públicos
-                        .requestMatchers("/api/pedidos/**").permitAll()
+                        .requestMatchers("/api/pedidos/**").authenticated()
 
                         // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated());

@@ -46,10 +46,10 @@ public class ProductoService {
         User owner = usuarioService.getUserById(dto.getOwnerId());
         List<Category> categories = categoryRepository.findAllById(dto.getCategoriaIds());
 
-        // Validar que se encontraron todas las categorías
-        if (categories.size() != dto.getCategoriaIds().size()) {
-            throw new ResourceNotFoundException("Una o más categorías no fueron encontradas");
-        }
+        // // Validar que se encontraron todas las categorías
+        // if (categories.size() != dto.getCategoriaIds().size()) {
+        //     throw new ResourceNotFoundException("Una o más categorías no fueron encontradas");
+        // }
 
         Product producto = new Product();
         producto.setNombre(dto.getNombre());
@@ -60,39 +60,20 @@ public class ProductoService {
 
         producto.setOwner(owner);
 
-        if(dto.getImages() != null && !dto.getImages().isEmpty()){
-            // Validar imágenes antes de guardarlas
-            for (MultipartFile image : dto.getImages()) {
-                String contentType = image.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    throw InvalidImageException.formatoNoSoportado(contentType);
-                }
-                
-                // Asumiendo un tamaño máximo de 5MB
-                if (image.getSize() > 5 * 1024 * 1024) {
-                    throw InvalidImageException.tamañoExcedido(image.getSize(), 5 * 1024 * 1024);
-                }
-                
-                if (image.isEmpty()) {
-                    throw InvalidImageException.imagenVacia();
-                }
-            }
+        Product productoGuardado = productoRepository.save(producto);
 
-            List<String> urlsImages = imagenService.guardarImagenes(
-                    dto.getImages(),
-                    producto.getId()
-            );
+        if(dto.getImages() != null && !dto.getImages().isEmpty()){
+            List<String> urlsImages = imagenService.guardarImagenes(dto.getImages(), productoGuardado.getId());
 
             for(int i = 0; i < urlsImages.size(); i++){
                 Image image = new Image();
-                image.setProducto(producto);
+                image.setProducto(productoGuardado);
                 image.setUrl(urlsImages.get(i));
                 image.setPosition(i+1);
 
                 imagenProductoRepository.save(image);
             }
         }
-        Product productoGuardado = productoRepository.findById(producto.getId()).orElse(producto);
         return new ResponseEntity<>(productoGuardado, HttpStatus.CREATED);
     }
 
