@@ -10,28 +10,24 @@ import com.api.e_commerce.dto.RegisterRequest;
 import com.api.e_commerce.model.User;
 import com.api.e_commerce.repository.UsuarioRepository;
 import com.api.e_commerce.security.JwtService;
+import com.api.e_commerce.service.UsuarioService;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UsuarioService usuarioService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        User user = new User();
-        user.setNombre(request.getNombre());
-        user.setApellido(request.getApellido());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        usuarioRepository.save(user);
+        User user = usuarioService.crearUsuario(request);
 
         String token = jwtService.generateToken(user);
         return ResponseEntity.ok(new AuthResponse(token));
@@ -42,9 +38,7 @@ public class AuthController {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-
-        User user = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User user = usuarioService.findByEmail(request.getEmail());
 
         String token = jwtService.generateToken(user);
         return ResponseEntity.ok(new AuthResponse(token));

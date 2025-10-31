@@ -3,6 +3,9 @@ package com.api.e_commerce.service;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
+import com.api.e_commerce.exception.DatabaseOperationException;
+import com.api.e_commerce.exception.InvalidImageException;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

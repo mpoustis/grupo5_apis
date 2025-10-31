@@ -1,8 +1,7 @@
 package com.api.e_commerce.service;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.web.multipart.MultipartFile;
 import com.api.e_commerce.exception.*;
 
 import com.api.e_commerce.dto.*;
@@ -11,8 +10,6 @@ import com.api.e_commerce.model.Image;
 import com.api.e_commerce.repository.CategoryRepository;
 import com.api.e_commerce.repository.ImagenProductoRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +29,7 @@ public class ProductoService {
     private CategoryRepository categoryRepository;
 
     @Transactional
-    public ResponseEntity<Product> createProducto(ProductoCreateDTO dto) {
+    public ProductoDTO createProducto(ProductoCreateDTO dto) {
         // Validar precio
         if (dto.getPrecio() <= 0) {
             throw new InvalidPriceException(dto.getPrecio());
@@ -44,72 +41,46 @@ public class ProductoService {
         }
 
         User owner = usuarioService.getUserById(dto.getOwnerId());
-        List<Category> categories = categoryRepository.findAllById(dto.getCategoriaIds());
-
-        // Validar que se encontraron todas las categorías
-        if (categories.size() != dto.getCategoriaIds().size()) {
-            throw new ResourceNotFoundException("Una o más categorías no fueron encontradas");
-        }
+        Category categoria = categoryRepository.findById(dto.getCategoriaId())
+            .orElseThrow(() -> new ResourceNotFoundException("Categoría", dto.getCategoriaId()));
 
         Product producto = new Product();
         producto.setNombre(dto.getNombre());
         producto.setDescripcion(dto.getDescripcion());
         producto.setPrecio(dto.getPrecio());
         producto.setStock(dto.getStock());
-        producto.setCategorias(categories);
+        producto.setCategoria(categoria);
 
         producto.setOwner(owner);
 
-        if(dto.getImages() != null && !dto.getImages().isEmpty()){
-            // Validar imágenes antes de guardarlas
-            for (MultipartFile image : dto.getImages()) {
-                String contentType = image.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    throw InvalidImageException.formatoNoSoportado(contentType);
-                }
-                
-                // Asumiendo un tamaño máximo de 5MB
-                if (image.getSize() > 5 * 1024 * 1024) {
-                    throw InvalidImageException.tamañoExcedido(image.getSize(), 5 * 1024 * 1024);
-                }
-                
-                if (image.isEmpty()) {
-                    throw InvalidImageException.imagenVacia();
-                }
-            }
+        Product productoGuardado = productoRepository.save(producto);
 
-            List<String> urlsImages = imagenService.guardarImagenes(
-                    dto.getImages(),
-                    producto.getId()
-            );
+        if(dto.getImages() != null && !dto.getImages().isEmpty()){
+            List<String> urlsImages = imagenService.guardarImagenes(dto.getImages(), productoGuardado.getId());
 
             for(int i = 0; i < urlsImages.size(); i++){
                 Image image = new Image();
-                image.setProducto(producto);
+                image.setProducto(productoGuardado);
                 image.setUrl(urlsImages.get(i));
                 image.setPosition(i+1);
 
                 imagenProductoRepository.save(image);
             }
         }
-        Product productoGuardado = productoRepository.findById(producto.getId()).orElse(producto);
-        return new ResponseEntity<>(productoGuardado, HttpStatus.CREATED);
+        return convertToDTO(productoGuardado);
     }
 
     public List<ProductoDTO> getAllProductos() {
         return productoRepository.findAll().stream()
                 .map(product -> {
                     ProductoDTO dto = new ProductoDTO();
+                    dto.setId(product.getId());
                     dto.setNombre(product.getNombre());
                     dto.setDescripcion(product.getDescripcion());
                     dto.setPrecio(product.getPrecio());
                     dto.setStock(product.getStock());
                     dto.setOwnerId(product.getOwner().getId());
-                    dto.setCategoriaIds(
-                            product.getCategorias().stream()
-                                    .map(Category::getId)
-                                    .toList()
-                    );
+                    dto.setCategoriaId(product.getCategoria().getId());
                     return dto;
                 })
                 .toList();
@@ -119,24 +90,17 @@ public class ProductoService {
         return productoRepository.findById(id)
                 .map(product -> {
                     ProductoDTO dto = new ProductoDTO();
+                    dto.setId(product.getId());
                     dto.setNombre(product.getNombre());
                     dto.setDescripcion(product.getDescripcion());
                     dto.setPrecio(product.getPrecio());
                     dto.setStock(product.getStock());
                     dto.setOwnerId(product.getOwner().getId());
-                    dto.setCategoriaIds(
-                            product.getCategorias().stream()
-                                    .map(Category::getId)
-                                    .toList()
-                    );
+                    dto.setCategoriaId(product.getCategoria().getId());
+            
                     return dto;
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
-        // return productoRepository.findById(id).orElse(null);
-    }
-
-    public Product saveProducto(Product producto) {
-        return productoRepository.save(producto);
     }
 
     public void deleteProducto(Long id) {
@@ -146,23 +110,67 @@ public class ProductoService {
         productoRepository.deleteById(id);
     }
 
-    public Product updateProducto(Long id, ProductoUpdateDTO productoDTO) {
-        // Validar precio
+    public ProductoDTO updateProducto(Long id, ProductoUpdateDTO productoDTO) {
         if (productoDTO.getPrecio() <= 0) {
             throw new InvalidPriceException(productoDTO.getPrecio());
         }
 
-        // Validar stock
         if (productoDTO.getStock() < 0) {
             throw new InvalidDataException("El stock no puede ser negativo");
         }
 
-        return productoRepository.findById(id)
+        Product productoActualizado = productoRepository.findById(id)
             .map(producto -> {
                 producto.setPrecio(productoDTO.getPrecio());
                 producto.setStock(productoDTO.getStock());
+                
                 return productoRepository.save(producto);
             })
             .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
+
+        return convertToDTO(productoActualizado);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> getProductosByOwner(Long ownerId) {
+        List<Product> productos = productoRepository.findByOwnerId(ownerId);
+        return productos.stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    private ProductoDTO convertToDTO(Product producto) {
+        ProductoDTO dto = new ProductoDTO();
+        dto.setId(producto.getId());
+        dto.setNombre(producto.getNombre());
+        dto.setDescripcion(producto.getDescripcion());
+        dto.setPrecio(producto.getPrecio());
+        dto.setStock(producto.getStock());
+        dto.setOwnerId(producto.getOwner().getId());
+        dto.setCategoriaId(producto.getCategoria().getId());
+        return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> getProductosFiltrados(Long categoriaId, String sort) {
+        List<Product> productos;
+
+        // Determinar qué método usar según parámetros
+        if (categoriaId != null) {
+            productos = productoRepository.findByCategoriaId(categoriaId);
+        } else {
+            productos = productoRepository.findAll();
+        }
+
+        // Ordenar (solo en memoria, para mantenerlo simple)
+        if ("asc".equalsIgnoreCase(sort)) {
+            productos.sort(Comparator.comparing(Product::getPrecio));
+        } else if ("desc".equalsIgnoreCase(sort)) {
+            productos.sort(Comparator.comparing(Product::getPrecio).reversed());
+        }
+
+        return productos.stream()
+                .map(this::convertToDTO)
+                .toList();
     }
 }

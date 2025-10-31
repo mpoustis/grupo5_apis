@@ -17,7 +17,9 @@ public class Category {
     @Column(nullable = false)    
     private String nombre;
 
+    private String descripcion;
     
-    @ManyToMany(mappedBy = "categorias")
-    private List<Product> productos = new ArrayList<>();
-}
+   @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Category categoria;
+    }
