@@ -28,13 +28,9 @@ public class Product {
     @Column(nullable = false)
     private Integer stock;
     
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "productos_categorias",
-        joinColumns = @JoinColumn(name = "producto_id"),
-        inverseJoinColumns = @JoinColumn(name = "categoria_id")
-    )
-    private List<Category> categorias = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Category categoria;
     
 
 }

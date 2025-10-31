@@ -74,21 +74,25 @@ public class SecurityConfig {
 
                         // Rutas públicas que no requieren autenticación
                         .requestMatchers("/api/usuarios/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/api/productos/mis-productos").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
-
+                        
                         // Rutas que requieren autenticación para modificar productos
                         .requestMatchers(HttpMethod.POST, "/api/productos/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/categorias/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/categorias/**").authenticated()
+                        .requestMatchers("/api/categorias/**").authenticated()
+
 
                         // Rutas de órdenes protegidas por JWT
                         .requestMatchers("/api/orders/**").authenticated()
 
                         // Rutas exclusivas para administradores
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-
-                        // Rutas de pedidos solo para usuarios autenticados o públicos
-                        .requestMatchers("/api/pedidos/**").authenticated()
 
                         // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated());

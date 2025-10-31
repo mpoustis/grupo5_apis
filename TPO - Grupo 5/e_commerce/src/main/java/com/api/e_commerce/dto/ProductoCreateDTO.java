@@ -12,7 +12,7 @@ public class ProductoCreateDTO {
     private Double precio;
     private Integer stock;
     private Long ownerId;
-    private List<Long> categoriaIds;
+    private Long categoriaId;
     public List<String> images;
 
 }

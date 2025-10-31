@@ -3,6 +3,8 @@ package com.api.e_commerce.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.api.e_commerce.model.Product;
 
@@ -29,4 +31,12 @@ public interface ProductoRepository extends JpaRepository<Product, Long> {
 
     //buscar por stock menor a
     List<Product> findByStockLessThan(Integer stock);
+
+    List<Product> findByOwnerId(Long ownerId);
+
+    List<Product> findByCategoriaId(Long categoriaId);
+
+    List<Product> findAllByOrderByPrecioAsc();
+
+    List<Product> findAllByOrderByPrecioDesc();
 }
