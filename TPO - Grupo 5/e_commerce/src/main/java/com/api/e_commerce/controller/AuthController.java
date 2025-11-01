@@ -16,6 +16,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashMap;
+
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
@@ -29,7 +31,9 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         User user = usuarioService.crearUsuario(request);
 
-        String token = jwtService.generateToken(user);
+        HashMap<String,String> claims = new HashMap<>();
+        claims.put("userId",user.getId().toString());
+        String token = jwtService.generateToken(user,claims);
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
@@ -40,7 +44,9 @@ public class AuthController {
         );
         User user = usuarioService.findByEmail(request.getEmail());
 
-        String token = jwtService.generateToken(user);
+        HashMap<String,String> claims = new HashMap<>();
+        claims.put("userId",user.getId().toString());
+        String token = jwtService.generateToken(user,claims);
         return ResponseEntity.ok(new AuthResponse(token));
     }
 }
