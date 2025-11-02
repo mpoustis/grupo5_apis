@@ -1,7 +1,10 @@
 package com.api.e_commerce.service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.api.e_commerce.exception.*;
 
 import com.api.e_commerce.dto.*;
@@ -55,6 +58,8 @@ public class ProductoService {
 
         Product productoGuardado = productoRepository.save(producto);
 
+        List<Image> nuevasImagenes = new ArrayList<>(); 
+
         if(dto.getImages() != null && !dto.getImages().isEmpty()){
             List<String> urlsImages = imagenService.guardarImagenes(dto.getImages(), productoGuardado.getId());
 
@@ -64,43 +69,28 @@ public class ProductoService {
                 image.setUrl(urlsImages.get(i));
                 image.setPosition(i+1);
 
-                imagenProductoRepository.save(image);
+                Image imagenPersistida = imagenProductoRepository.save(image);
+
+                nuevasImagenes.add(imagenPersistida);
             }
+            
+            productoGuardado.setImages(nuevasImagenes); 
         }
-        return convertToDTO(productoGuardado);
+
+    return convertToDTO(productoGuardado);
     }
 
     public List<ProductoDTO> getAllProductos() {
-        return productoRepository.findAll().stream()
-                .map(product -> {
-                    ProductoDTO dto = new ProductoDTO();
-                    dto.setId(product.getId());
-                    dto.setNombre(product.getNombre());
-                    dto.setDescripcion(product.getDescripcion());
-                    dto.setPrecio(product.getPrecio());
-                    dto.setStock(product.getStock());
-                    dto.setOwnerId(product.getOwner().getId());
-                    dto.setCategoriaId(product.getCategoria().getId());
-                    return dto;
-                })
-                .toList();
-    }
+    return productoRepository.findAll().stream()
+            .map(this::convertToDTO) 
+            .toList();
+}
 
     public ProductoDTO getProductoById(Long id) {
         return productoRepository.findById(id)
-                .map(product -> {
-                    ProductoDTO dto = new ProductoDTO();
-                    dto.setId(product.getId());
-                    dto.setNombre(product.getNombre());
-                    dto.setDescripcion(product.getDescripcion());
-                    dto.setPrecio(product.getPrecio());
-                    dto.setStock(product.getStock());
-                    dto.setOwnerId(product.getOwner().getId());
-                    dto.setCategoriaId(product.getCategoria().getId());
-            
-                    return dto;
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
+            .map(this::convertToDTO) // Aquí se llama a getImages() dentro de la transacción
+            .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
+
     }
 
     public void deleteProducto(Long id) {
@@ -148,6 +138,17 @@ public class ProductoService {
         dto.setStock(producto.getStock());
         dto.setOwnerId(producto.getOwner().getId());
         dto.setCategoriaId(producto.getCategoria().getId());
+
+        List<ImageDTO> imageDTO = producto.getImages().stream().map(image -> {
+            ImageDTO i = new ImageDTO();
+            i.setId(image.getId());
+            i.setUrl(image.getUrl());
+            i.setPosition(image.getPosition());
+            return i;
+        }).collect(Collectors.toList());
+
+        dto.setImages(imageDTO);
+
         return dto;
     }
 

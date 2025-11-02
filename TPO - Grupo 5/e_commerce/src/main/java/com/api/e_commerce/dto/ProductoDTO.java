@@ -14,6 +14,6 @@ public class ProductoDTO {
     private Integer stock;
     private Long ownerId;
     private Long categoriaId;
-    public List<String> images;
+    public List<ImageDTO> images;
 
 }
