@@ -14,5 +14,4 @@ public class ProductoCreateDTO {
     private Long ownerId;
     private Long categoriaId;
     public List<String> images;
-
 }

@@ -17,9 +17,10 @@ public class Category {
     @Column(nullable = false)    
     private String nombre;
 
+    @Column(nullable = false)
     private String descripcion;
     
    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id", nullable = false)
+    @JoinColumn(name = "categoria_id", nullable = true)
     private Category categoria;
     }

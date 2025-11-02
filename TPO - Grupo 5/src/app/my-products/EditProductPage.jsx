@@ -4,7 +4,7 @@ import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import EditProductForm from "../../components/EditProductForm";
 import { getProduct, createProduct, updateProduct } from "../../services/productsApi";
-import { getCurrentUser } from "../../services/auth";
+import { getCurrentToken } from "../../services/auth";
 import "../../styles/MyProducts.css";
 import "../../styles/EditProduct.css";
 
@@ -21,7 +21,7 @@ export default function EditProductPage() {
       try {
         setLoading(true);
         const data = await getProduct(id);
-        const { id: me } = getCurrentUser();
+        const { id: me } = getCurrentToken();
 
         if (data.ownerId !== me) {
           alert("No podés editar un producto que no te pertenece.");
@@ -60,7 +60,7 @@ export default function EditProductPage() {
       <Header />
       <main>
         <EditProductForm
-          initialProduct={isEdit ? product : { title: "", price: "", stock: "", description: "", image: "" }}
+          initialProduct={isEdit ? product : { title: "", price: "", stock: "", description: "", category:"", image: [] }}
           loading={loading}
           onCancel={handleCancel}
           onSubmit={handleSubmit}

@@ -3,19 +3,33 @@
 // - Filtrar por múltiples categorías (category=a&category=b)
 // - Ordenar por precio (asc | desc)
 
-import { getCurrentUser } from "./auth";
+import { getCurrentToken } from "../services/auth";
 
-const BASE = "/api/products";
+const API_URL = "http://localhost:8081/api/productos";
 
-async function http(url, options) {
+
+async function http(url, options = {}) {
+  const token = getCurrentToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const res = await fetch(url, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers,
   });
+
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`HTTP ${res.status} - ${text || res.statusText}`);
   }
+
   const ct = res.headers.get("content-type") || "";
   return ct.includes("application/json") ? res.json() : null;
 }
@@ -50,34 +64,40 @@ export async function listProducts(opts = {}) {
     params.set("_sort", "-price");
   }
 
-  const url = params.toString() ? `${BASE}?${params.toString()}` : BASE;
+  const url = params.toString() ? `${API_URL}?${params.toString()}` : API_URL;
   return http(url);
 }
 
 // Solo los del usuario actual
 export async function listMyProducts() {
-  const { id } = getCurrentUser();
-  return http(`${BASE}?ownerId=${id}`);
+  const token = getCurrentToken();
+  return http(`${API_URL}/mis-productos`, {
+    headers: {
+      "Content-Type": "application/json",
+      'Authorization': `Bearer ${token}`    
+    },
+  });
 }
 
 // Obtener producto por id
 export async function getProduct(id) {
-  return http(`${BASE}/${id}`);
+  return http(`${API_URL}mis-productos`);
 }
 
 // Crear producto, asignando ownerId del usuario actual
 export async function createProduct(product) {
-  const { id: ownerId } = getCurrentUser();
+  const { id: ownerId } = getCurrentToken();
   const body = { ownerId, ...product };
-  return http(BASE, { method: "POST", body: JSON.stringify(body) });
+  return http(API_URL, { method: "POST", body: JSON.stringify(body) });
 }
 
 // Actualizar producto (PATCH parcial para no pisar campos)
 export async function updateProduct(id, partial) {
-  return http(`${BASE}/${id}`, { method: "PATCH", body: JSON.stringify(partial) });
+  console.log(JSON.stringify(partial))
+  return http(`${API_URL}/${id}`, { method: "PATCH", body: JSON.stringify(partial) });
 }
 
 // Borrar producto
 export async function deleteProduct(id) {
-  return http(`${BASE}/${id}`, { method: "DELETE" });
+  return http(`${API_URL}/${id}`, { method: "DELETE" });
 }

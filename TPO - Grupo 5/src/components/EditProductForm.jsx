@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "../styles/EditProduct.css";
 import "../styles/MyProducts.css";
+import { getDecodedUser } from "../services/auth";
 
 const EMPTY_PRODUCT = {
   id: "",
@@ -10,7 +11,7 @@ const EMPTY_PRODUCT = {
   price: "",
   stock: "",
   originalPrice: "",
-  image: "",
+  image: [],
   rating: "",
   reviews: "",
   category: "",
@@ -69,7 +70,6 @@ const handleChange = (e) => {
   const handleImageFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // TODO reemplazar con el upload a servidor
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
@@ -87,28 +87,19 @@ const handleChange = (e) => {
 
     try {
       setSubmitting(true);
+      const token = getDecodedUser()
+        const payload = {
+            nombre: product.name?.trim() || "",
+            descripcion: product.description?.trim() || "",
+            precio: Number(product.price),
+            stock: Number(product.stock),
+            
+            ownerId: Number(token?.userId) || 0,
 
-      // Casting final al shape requerido por backend
-      const payload = {
-        id: `${product.id ?? ""}`.trim() || undefined, // si está vacío, dejar que el backend lo asigne
-        ownerId: product.ownerId === "" ? undefined : Number(product.ownerId),
-        name: product.name.trim(),
-        description: product.description?.trim() || "",
-        price: Number(product.price),
-        stock: Number(product.stock),
-        originalPrice:
-          product.originalPrice === "" ? undefined : Number(product.originalPrice),
-        image: product.image || "",
-        rating: product.rating === "" ? undefined : Number(product.rating),
-        reviews: product.reviews === "" ? undefined : Number(product.reviews),
-        category: product.category?.trim() || "",
-        brand: product.brand?.trim() || "",
-        inStock: Boolean(product.inStock),
-        public: Boolean(product.public),
-        tax: Number(product.tax),   // 0..1
-        cuotas: Number(product.cuotas),
-        fee: Number(product.fee),   // 0..1
-      };
+            categoriaId: Number(product.category),
+            
+            images: product.image ? [product.image] : [], 
+        };
 
       await onSubmit?.(payload);
     } finally {
@@ -203,14 +194,14 @@ const handleChange = (e) => {
                 className="editp__input"
               >
                 <option value="">Seleccione una categoría</option>
-                <option value="smartphones">Smartphones</option>
-                <option value="audio">Audio</option>
-                <option value="wereables">Wereables</option>
-                <option value="tablets">Tablets</option>
-                <option value="laptops">Laptops</option>
-                <option value="camaras">Cámaras</option>
-                <option value="drones">Drones</option>
-                <option value="otros">Otros...</option>
+                <option value="1">Smartphones</option>
+                <option value="2">Audio</option>
+                <option value="3">Wereables</option>
+                <option value="4">Tablets</option>
+                <option value="5">Laptops</option>
+                <option value="6">Cámaras</option>
+                <option value="7">Drones</option>
+                <option value="8">Otros...</option>
               </select>
             </div>
 
