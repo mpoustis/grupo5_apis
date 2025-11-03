@@ -3,9 +3,11 @@ import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { useCart } from "../../contexts/cart-contexts";
 import { getProduct, updateProduct } from "../../services/productsApi";
+import { useNavigate } from "react-router-dom"; // 👈 Importamos esto
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, clearCart, getTotalPrice } = useCart();
+  const navigate = useNavigate(); // 👈 Para redirigir
 
   const handleQty = (id, delta) => {
     const item = items.find((i) => i.id === id);
@@ -14,21 +16,9 @@ export default function CartPage() {
   };
 
   async function handleCheckout() {
-    // Validar stock
-    for (const item of items) {
-      const p = await getProduct(item.id);
-      if (!p || p.stock < item.quantity) {
-        alert(`Sin stock suficiente para: ${item.title || item.name}`);
-        return;
-      }
-    }
-    // Descontar stock
-    for (const item of items) {
-      const p = await getProduct(item.id);
-      await updateProduct(item.id, { stock: p.stock - item.quantity });
-    }
-    alert("Checkout exitoso. El stock fue actualizado.");
+    // Limpiar carrito y redirigir a la página de éxito
     clearCart();
+    navigate("/compra-exitosa"); // 👈 Redirige a la nueva sección
   }
 
   if (items.length === 0) {
@@ -36,7 +26,13 @@ export default function CartPage() {
       <div className="min-h-screen bg-background">
         <Header />
         <main className="cart-container headerFit emptycart">
-          <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17h-11v-14h-2" /><path d="M6 5l14 1l-1 7h-13" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+            <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+            <path d="M17 17h-11v-14h-2" />
+            <path d="M6 5l14 1l-1 7h-13" />
+          </svg>
           <h2>Tu carrito está vacío</h2>
         </main>
         <Footer />

@@ -98,7 +98,8 @@ const handleChange = (e) => {
 
             categoriaId: Number(product.category),
             
-            images: product.image ? [product.image] : [], 
+            image: product.image || ""
+
         };
 
       await onSubmit?.(payload);
