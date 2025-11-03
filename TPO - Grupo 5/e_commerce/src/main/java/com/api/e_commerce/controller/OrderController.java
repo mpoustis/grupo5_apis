@@ -2,9 +2,12 @@ package com.api.e_commerce.controller;
 
 import java.util.List;
 
+import com.api.e_commerce.dto.OrderItemDTO;
+import com.api.e_commerce.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.api.e_commerce.dto.CreateOrderDTO;
@@ -35,7 +38,8 @@ public class OrderController {
 
     // POST: crear una nueva orden con sus items
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody CreateOrderDTO createOrderDTO) {
+    public ResponseEntity<OrderDTO> createOrder(@AuthenticationPrincipal User user, @RequestBody CreateOrderDTO createOrderDTO) {
+        createOrderDTO.setBuyerId(user.getId());
         OrderDTO createdOrder = orderService.createOrder(createOrderDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }

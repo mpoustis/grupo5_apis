@@ -11,6 +11,8 @@ import RegisPage from './app/register/Page.jsx'
 import RecoverPage from './app/recover/Page.jsx'
 import CartPage from './app/cart/Page.jsx'
 import CompraExitosa from './app/compraExitosa/Page.jsx'
+import Orders from './app/orders/Page.jsx'
+
 
 
 import { CartProvider } from './contexts/cart-contexts'
@@ -28,6 +30,8 @@ function App() {
           {/* Carrito */}
         <Route path="/cart" element={<CartPage />} />
         <Route path="/compra-exitosa" element={<CompraExitosa />} />
+        <Route path="/my-orders" element={<Orders />} />
+
 
           {/* Gestión de productos */}
           <Route path="/my-products" element={<MyProducts />} />
