@@ -18,11 +18,14 @@ const categories = [
 
 const brands = ["TechPro", "SoundMax", "TimeSync", "DigitalPro", "GameForce", "PhotoMax", "VoiceTech", "AirPro"];
 
-const publicationStatus = [{ value: true, label: "Público" },{ value: false, label: "No público" }];
+const publicationStatus = [
+  { value: true, label: "Público" },
+  { value: false, label: "No público" }
+];
 
 const sortOptions = [
-  { value: "price-low", label: "Precio: Menor a..." },
-  { value: "price-high", label: "Precio: Mayor a..." },
+  { value: "price-low", label: "Precio: Menor a Mayor" },
+  { value: "price-high", label: "Precio: Mayor a Menor" },
 ];
 
 const priceRanges = [
@@ -34,7 +37,9 @@ const priceRanges = [
 
 // 🔹 Componente de tarjeta de producto
 const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart }) => {
-  const discount = Math.round((1 - product.price / product.originalPrice) * 100);
+  const discount = product.originalPrice > product.price 
+    ? Math.round((1 - product.price / product.originalPrice) * 100) 
+    : 0;
 
   return (
     <div className="product-card">
@@ -44,12 +49,16 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite, onAddToCart }) => 
             src={product.image || "/api/placeholder/280/200"} 
             alt={product.name}
             className="product-image"
+            onError={(e) => {
+              e.target.src = "/api/placeholder/280/200";
+            }}
           />
         </Link>
 
         <button 
           onClick={() => onToggleFavorite(product.id)}
           className={`favorite-btn ${isFavorite ? 'active' : 'inactive'}`}
+          aria-label="Agregar a favoritos"
         >
           <Heart className="favorite-icon" fill={isFavorite ? "currentColor" : "none"} />
         </button>
@@ -111,6 +120,7 @@ const FilterSection = ({ title, children, isOpen, onToggle }) => (
     <button
       onClick={onToggle}
       className="filter-section-header"
+      aria-expanded={isOpen}
     >
       {title}
       {isOpen ? <ChevronUp className="filter-section-icon" /> : <ChevronDown className="filter-section-icon" />}
@@ -124,6 +134,7 @@ export default function ProductsMainSection() {
   const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState(new Set());
   const [selectedPublicationStatus, setSelectedPublicationStatus] = useState("true");
@@ -141,23 +152,26 @@ export default function ProductsMainSection() {
   // 🔹 Traer productos desde API
   useEffect(() => {
     const fetchProducts = async () => {
-  setLoading(true);
-  try {
-    const opts = {
-      onlyPublic: selectedPublicationStatus === "true", 
-      categories: Array.from(selectedCategories),
-      order: sortBy === "price-low" ? "asc" : sortBy === "price-high" ? "desc" : null
+      setLoading(true);
+      setError(null);
+      try {
+        const opts = {
+          onlyPublic: selectedPublicationStatus === "true", 
+          categories: Array.from(selectedCategories),
+          order: sortBy === "price-low" ? "asc" : sortBy === "price-high" ? "desc" : null
+        };
+
+        const data = await listProducts(opts);
+        setProducts(data || []);
+      } catch (err) {
+        console.error("Error al cargar productos:", err);
+        setError(err.message || "Error al cargar productos");
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
     };
-
-    const data = await listProducts(opts);
-
-    setProducts(data);
-  } catch (err) {
-    console.error("Error al cargar productos:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+    
     fetchProducts();
   }, [selectedCategories, selectedPublicationStatus, sortBy]);
 
@@ -174,28 +188,50 @@ export default function ProductsMainSection() {
   const toggleFavorite = (productId) => {
     setFavorites(prev => {
       const newFavorites = new Set(prev);
-      newFavorites.has(productId) ? newFavorites.delete(productId) : newFavorites.add(productId);
+      if (newFavorites.has(productId)) {
+        newFavorites.delete(productId);
+      } else {
+        newFavorites.add(productId);
+      }
       return newFavorites;
     });
   };
 
-  const toggleCategory = (category) => setSelectedCategories(prev => {
-    const newSet = new Set(prev);
-    newSet.has(category) ? newSet.delete(category) : newSet.add(category);
-    return newSet;
-  });
+  const toggleCategory = (category) => {
+    setSelectedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
 
-  const toggleBrand = (brand) => setSelectedBrands(prev => {
-    const newSet = new Set(prev);
-    newSet.has(brand) ? newSet.delete(brand) : newSet.add(brand);
-    return newSet;
-  });
+  const toggleBrand = (brand) => {
+    setSelectedBrands(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(brand)) {
+        newSet.delete(brand);
+      } else {
+        newSet.add(brand);
+      }
+      return newSet;
+    });
+  };
 
-  const togglePriceRange = (rangeId) => setSelectedPriceRanges(prev => {
-    const newSet = new Set(prev);
-    newSet.has(rangeId) ? newSet.delete(rangeId) : newSet.add(rangeId);
-    return newSet;
-  });
+  const togglePriceRange = (rangeId) => {
+    setSelectedPriceRanges(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(rangeId)) {
+        newSet.delete(rangeId);
+      } else {
+        newSet.add(rangeId);
+      }
+      return newSet;
+    });
+  };
 
   const clearAllFilters = () => {
     setSelectedCategories(new Set());
@@ -207,8 +243,7 @@ export default function ProductsMainSection() {
 
   // 🔹 Filtrado y ordenamiento
   const filteredAndSortedProducts = useMemo(() => {
-    let filtered = products.filter(product => {
-
+    return products.filter(product => {
       const matchesSearch = !searchTerm.trim() || 
         (product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -225,14 +260,37 @@ export default function ProductsMainSection() {
       
       return matchesSearch && matchesBrand && matchesPrice;
     });
-
-    return filtered;
   }, [products, searchTerm, selectedBrands, selectedPriceRanges]);
 
-  if (loading) return <p>Cargando productos...</p>;
-  if (!loading && products.length === 0) return <p>No hay productos disponibles 🛒</p>;
+  // 🔹 Estados de carga
+  if (loading) {
+    return (
+      <div className="products-container">
+        <div className="products-wrapper">
+          <p style={{ textAlign: 'center', padding: '2rem', fontSize: '1.2rem' }}>
+            Cargando productos...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-  const totalFilters = selectedCategories.size + selectedBrands.size + selectedPriceRanges.size + (searchTerm ? 1 : 0) + (selectedPublicationStatus !== "true" ? 1 : 0);
+  if (error) {
+    return (
+      <div className="products-container">
+        <div className="products-wrapper">
+          <div className="no-result">
+            <h3>Error al cargar productos</h3>
+            <p>{error}</p>
+            <button onClick={() => window.location.reload()}>Reintentar</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const totalFilters = selectedCategories.size + selectedBrands.size + selectedPriceRanges.size + 
+                       (searchTerm ? 1 : 0) + (selectedPublicationStatus !== "true" ? 1 : 0);
 
   return (
     <div className="products-container">
@@ -326,7 +384,7 @@ export default function ProductsMainSection() {
                 >
                   <div className="filter-options">
                     {publicationStatus.map(status => (
-                      <label key={status.value} className="filter-option">
+                      <label key={status.value.toString()} className="filter-option">
                         <input
                           type="radio"
                           name="publicationStatus"
@@ -363,13 +421,14 @@ export default function ProductsMainSection() {
                 
                 <div className="sort-controls">
                   <span className="products-count">
-                    {filteredAndSortedProducts.length} productos
+                    {filteredAndSortedProducts.length} producto{filteredAndSortedProducts.length !== 1 ? 's' : ''}
                   </span>
                   
                   <div className="sort-select-container">
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
+                      className="sort-select"
                     >
                       {sortOptions.map(option => (
                         <option key={option.value} value={option.value}>
@@ -383,24 +442,30 @@ export default function ProductsMainSection() {
               </div>
             </div>
 
-            <div className="products-grid">
-              {filteredAndSortedProducts.map(product => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isFavorite={favorites.has(product.id)}
-                  onToggleFavorite={toggleFavorite}
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
-            </div>
-
-            {filteredAndSortedProducts.length === 0 && (
+            {filteredAndSortedProducts.length > 0 ? (
+              <div className="products-grid">
+                {filteredAndSortedProducts.map(product => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isFavorite={favorites.has(product.id)}
+                    onToggleFavorite={toggleFavorite}
+                    onAddToCart={handleAddToCart}
+                  />
+                ))}
+              </div>
+            ) : (
               <div className="no-result">
                 <Search className="no-result-icon svg" />
                 <h3>No se encontraron productos</h3>
-                <p>Intenta ajustar tus filtros o términos de búsqueda</p>
-                <button onClick={clearAllFilters}>Limpiar Filtros</button>
+                <p>
+                  {products.length === 0 
+                    ? "No hay productos disponibles en este momento" 
+                    : "Intenta ajustar tus filtros o términos de búsqueda"}
+                </p>
+                {totalFilters > 0 && (
+                  <button onClick={clearAllFilters}>Limpiar Filtros</button>
+                )}
               </div>
             )}
           </div>

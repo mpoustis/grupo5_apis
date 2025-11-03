@@ -10,6 +10,8 @@ import LoginPage from './app/login/Page.jsx'
 import RegisPage from './app/register/Page.jsx'
 import RecoverPage from './app/recover/Page.jsx'
 import CartPage from './app/cart/Page.jsx'
+import CompraExitosa from './app/compraExitosa/Page.jsx'
+
 
 import { CartProvider } from './contexts/cart-contexts'
 
@@ -24,7 +26,8 @@ function App() {
           <Route path="/products/:id" element={<ProductDetails />} />
 
           {/* Carrito */}
-          <Route path="/cart" element={<CartPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/compra-exitosa" element={<CompraExitosa />} />
 
           {/* Gestión de productos */}
           <Route path="/my-products" element={<MyProducts />} />
