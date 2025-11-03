@@ -5,7 +5,7 @@
 
 import { getCurrentToken } from "../services/auth";
 
-const API_URL = "http://localhost:8081/api/productos";
+const API_URL = "http://localhost:8080/api/productos";
 
 
 async function http(url, options = {}) {

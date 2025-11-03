@@ -1,5 +1,4 @@
-// URL base de tu backend Spring Boot. ¡REVISADO: PUERTO 8081!
-const API_URL = "http://localhost:8081/api/auth";
+const API_URL = "http://localhost:8080/api/auth";
 const TOKEN_KEY = 'authToken'; // Clave para sessionStorage
 
 export function getCurrentToken() {
@@ -46,7 +45,7 @@ export async function registerUser(formData) {
 }
 
 export async function loginUser(credentials) {
-    const response = await fetch("http://localhost:8081/api/auth/login", {
+    const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
