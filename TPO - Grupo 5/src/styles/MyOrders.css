@@ -1,0 +1,162 @@
+/*
+ * Archivo: ../styles/MyOrders.css
+ * Adaptado del diseño de Mis Productos
+ */
+
+/* === Sección Contenedora Principal === */
+.my-orders {
+    padding: 20px 0;
+    background-color: #f4f4f4; /* Fondo gris claro */
+    min-height: 80vh;
+}
+
+.my-orders__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* === Encabezado de la Sección === */
+.my-orders__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.my-orders__name {
+    font-size: 1.8em;
+    color: #333;
+    font-weight: 600;
+}
+
+/* El botón "Nuevo Producto" no aplica aquí, lo eliminamos o lo sustituimos por un icono si fuera necesario */
+/* .my-orders__button--new { ... } */
+
+
+/* === Encabezado de la Lista (Columnas) === */
+.my-orders__list-header {
+    display: grid;
+    /* Ajustamos las columnas para la información de la orden:
+       - 10% para Status/Icono
+       - 40% para ID y Estado
+       - 15% para Monto Total
+       - 15% para Cantidad de Artículos
+       - 20% para Acciones/Botón
+    */
+    grid-template-columns: 0.8fr 2fr 1.2fr 1.2fr 1.5fr; 
+    
+    gap: 10px;
+    padding: 10px 15px;
+    font-weight: bold;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    border-bottom: 2px solid #ccc;
+    background-color: #fcfcfc;
+}
+
+/* === Filas Individuales de la Orden === */
+.my-order-row {
+    display: grid;
+    /* Usamos la misma estructura de columnas que el header */
+    grid-template-columns: 0.8fr 2fr 1.2fr 1.2fr 1.5fr; 
+
+    gap: 10px;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-top: none; /* Quitamos el borde superior para que las filas se vean unidas */
+    padding: 15px;
+    margin-bottom: 5px; /* Espacio entre filas */
+    border-radius: 4px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    align-items: center;
+}
+
+.my-order-row:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+/* Clase para el mensaje de carga/error/vacío */
+.my-order-row:not(:hover):first-of-type {
+    /* Si la primera fila no tiene hover y no es parte de la lista, dale un borde superior */
+    border-top: 1px solid #eee;
+}
+
+
+/* --- Columna de Icono/Estado (Thumb) --- */
+.my-order-row__thumb {
+    font-size: 1.5em; /* Tamaño del icono/emoji */
+    text-align: center;
+}
+
+/* --- Columna de Información (ID y Status) --- */
+.my-order-row__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.my-order-row__id {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #007bff; /* Color para destacar el ID */
+    margin: 0;
+    margin-bottom: 5px;
+}
+
+.my-order-row__status {
+    font-size: 0.9em;
+    color: #666;
+    margin: 0;
+}
+
+/* --- Monto Total (Precio) --- */
+.my-order-row__total-amount {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #1e8449; /* Color verde para el monto total */
+}
+
+/* --- Cantidad de Artículos (Stock) --- */
+.my-order-row__total-items {
+    font-size: 1em;
+    color: #333;
+    text-align: center;
+}
+
+/* --- Acciones (Botón) --- */
+.my-order-row__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.my-order-row__actions button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.my-order-row__actions button {
+    background-color: #007bff; /* Azul similar al de "Mis Productos" */
+    color: white;
+}
+
+.my-order-row__actions button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilo para mensajes de error y carga */
+.my-order-row[style*="color: #dc2626"] {
+    background-color: #fee2e2;
+    color: #dc2626 !important;
+    text-align: center;
+    font-weight: 600;
+}

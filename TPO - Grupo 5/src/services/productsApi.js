@@ -1,4 +1,3 @@
-// Código para manejar productos vía API REST (con filtros y orden)
 import { getCurrentToken } from "../services/auth";
 
 const API_BASE_URL = "http://localhost:8080/api/productos";
@@ -174,8 +173,6 @@ export async function updateProduct(id, partial) {
   if (partial.image !== undefined && partial.image.trim() !== "") {
     payload.images = [partial.image];
   }
-
-  console.log('Payload actualización:', JSON.stringify(payload, null, 2));
   
   try {
     const result = await http(`${API_BASE_URL}/${id}`, { 

@@ -25,6 +25,8 @@ export function Header() {
             <Link to="/">Inicio</Link> 
             <Link to="/products">Productos</Link>
             <Link to="/my-products">Mis Productos</Link>
+            <Link to="/my-orders">Mis Ordenes</Link>
+
           </nav>
 
           {/* Actions */}

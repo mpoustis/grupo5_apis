@@ -1,5 +1,8 @@
 package com.api.e_commerce.dto;
 
+import lombok.Data;
+
+@Data
 public class OrderItemDetailDTO {
     private Long productId;
     private String productName;
