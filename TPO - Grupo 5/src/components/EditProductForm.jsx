@@ -89,14 +89,14 @@ const handleChange = (e) => {
       setSubmitting(true);
       const token = getDecodedUser()
         const payload = {
-            nombre: product.name?.trim() || "",
-            descripcion: product.description?.trim() || "",
-            precio: Number(product.price),
+            name: product.name?.trim() || "",
+            description: product.description?.trim() || "",
+            price: Number(product.price),
             stock: Number(product.stock),
             
             ownerId: Number(token?.userId) || 0,
 
-            categoriaId: Number(product.category),
+            category: Number(product.category),
             
             image: product.image || ""
 

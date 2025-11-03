@@ -60,7 +60,7 @@ export default function EditProductPage() {
       <Header />
       <main>
         <EditProductForm
-          initialProduct={isEdit ? product : { title: "", price: "", stock: "", description: "", category:"", image: [] }}
+          initialProduct={isEdit ? product : { name: "", price: "", stock: "", description: "", category:"", image: [] }}
           loading={loading}
           onCancel={handleCancel}
           onSubmit={handleSubmit}

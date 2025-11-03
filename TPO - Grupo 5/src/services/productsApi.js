@@ -5,7 +5,7 @@
 
 import { getCurrentToken } from "../services/auth";
 
-const API_BASE_URL = "http://localhost:8081/api/productos";
+const API_BASE_URL = "http://localhost:8080/api/productos";
 const API_URL = `${API_BASE_URL}/filtrar`;
 
 // ========================================

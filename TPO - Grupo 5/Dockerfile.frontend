@@ -1,0 +1,26 @@
+# ETAPA 1: BUILD (Compilación del código de React)
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+COPY package.json .
+COPY package-lock.json .
+
+RUN npm install
+
+COPY . .
+
+# Ejecuta el build (Genera la carpeta 'dist' si usas Vite)
+RUN npm run build
+
+# ETAPA 2: RUNTIME (Servir la aplicación con Nginx)
+FROM nginx:alpine
+
+# Copia la configuración de Nginx (Asegúrate de tener el nginx.conf)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# *** LÍNEA CORREGIDA AQUÍ ***
+# Copia los archivos estáticos desde /app/dist (salida por defecto de Vite)
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80

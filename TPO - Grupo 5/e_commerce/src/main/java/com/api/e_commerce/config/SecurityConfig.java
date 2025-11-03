@@ -117,7 +117,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173") // URL del frontend
+                        .allowedOrigins("http://localhost:5173", "http://localhost") // para http el puerto por defecto es 80 , sería http://localhost:80
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

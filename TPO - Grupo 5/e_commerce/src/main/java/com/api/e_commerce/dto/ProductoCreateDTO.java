@@ -11,7 +11,6 @@ public class ProductoCreateDTO {
     private String descripcion;
     private Double precio;
     private Integer stock;
-    private Long ownerId;
     private Long categoriaId;
     public List<String> images;
 }
