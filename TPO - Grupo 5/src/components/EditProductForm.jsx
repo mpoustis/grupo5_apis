@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "../styles/EditProduct.css";
 import "../styles/MyProducts.css";
-import { getDecodedUser } from "../services/auth";
 
 const EMPTY_PRODUCT = {
   id: "",
@@ -11,16 +10,16 @@ const EMPTY_PRODUCT = {
   price: "",
   stock: "",
   originalPrice: "",
-  image: [],
+  image: "", // ✅ String único en el frontend
   rating: "",
   reviews: "",
   category: "",
   brand: "",
   inStock: true,
   public: true,
-  tax: 0.21,   // IVA por defecto 21%
+  tax: 0.21,
   cuotas: 1,
-  fee: 0       // interés por defecto 0
+  fee: 0
 };
 
 export default function EditProductForm({
@@ -44,9 +43,7 @@ export default function EditProductForm({
 
   const validate = (p) => {
     const e = {};
-
     if (!p.name?.trim()) e.name = "El nombre es obligatorio.";
-
     return e;
   };
 
@@ -55,7 +52,7 @@ export default function EditProductForm({
     return Object.keys(e).length === 0;
   }, [product]);
 
-const handleChange = (e) => {
+  const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
     setProduct((prev) => ({
       ...prev,
@@ -87,20 +84,20 @@ const handleChange = (e) => {
 
     try {
       setSubmitting(true);
-      const token = getDecodedUser()
-        const payload = {
-            name: product.name?.trim() || "",
-            description: product.description?.trim() || "",
-            price: Number(product.price),
-            stock: Number(product.stock),
-            
-            ownerId: Number(token?.userId) || 0,
+      
+      // ✅ ESTE ES EL CAMBIO CRÍTICO: El payload ya tiene el formato correcto
+      // La función createProduct() en products.js se encarga de convertir
+      // product.image (string) → images: [string] para el backend
+      const payload = {
+        name: product.name?.trim() || "",
+        description: product.description?.trim() || "",
+        price: Number(product.price) || 0,
+        stock: Number(product.stock) || 0,
+        category: product.category ? Number(product.category) : null,
+        image: product.image || "" // ✅ Enviamos string, products.js lo convierte a array
+      };
 
-            category: Number(product.category),
-            
-            image: product.image || ""
-
-        };
+      console.log('Payload desde form:', JSON.stringify(payload, null, 2));
 
       await onSubmit?.(payload);
     } finally {
@@ -259,7 +256,7 @@ const handleChange = (e) => {
               <input
                 type="text"
                 name="image"
-                value={product.image}
+                value={product.image.url}
                 onChange={handleChange}
                 className={`editp__input ${errors.image ? "editp__input--error" : ""}`}
                 placeholder="URL de imagen o pegar data:image/…"

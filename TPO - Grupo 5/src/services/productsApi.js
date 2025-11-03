@@ -1,8 +1,4 @@
 // Código para manejar productos vía API REST (con filtros y orden)
-// - Filtrar por públicos (public=true)
-// - Filtrar por múltiples categorías (category=a&category=b)
-// - Ordenar por precio (asc | desc)
-
 import { getCurrentToken } from "../services/auth";
 
 const API_BASE_URL = "http://localhost:8080/api/productos";
@@ -41,9 +37,6 @@ async function http(url, options = {}) {
 // TRANSFORMADOR (Backend → Frontend)
 // ========================================
 
-/**
- * Transforma un producto del formato backend al frontend
- */
 function transformProductToFrontend(product) {
   return {
     id: product.id,
@@ -52,8 +45,8 @@ function transformProductToFrontend(product) {
     price: product.precio,
     originalPrice: product.precioOriginal || product.precio * 1.2,
     image: product.images && product.images.length > 0 
-      ? product.images[0].url  // Ruta relativa: /uploads/xxx.jpg
-      : "/api/placeholder/280/200",
+      ? product.images[0].url
+      : "",
     images: product.images || [],
     brand: product.marca || "TECHPRO",
     category: product.categoriaId || "",
@@ -73,13 +66,6 @@ function transformProductToFrontend(product) {
 // FUNCIONES DE API
 // ========================================
 
-/**
- * Listar productos con filtros opcionales
- * @param {Object} [opts]
- * @param {boolean} [opts.onlyPublic=true] Si true, agrega public=true
- * @param {string|string[]} [opts.categories] Una o más categorías exactas
- * @param {"asc"|"desc"|null} [opts.order=null] Si se define, ordena por precio
- */
 export async function listProducts(opts = {}) {
   const {
     onlyPublic = true,
@@ -112,8 +98,6 @@ export async function listProducts(opts = {}) {
     if (!response.ok) throw new Error('Error al obtener productos');
     
     const data = await response.json();
-    
-    // ✅ Transformar datos del backend al formato del frontend
     return data.map(transformProductToFrontend);
   } catch (error) {
     console.error('Error en listProducts:', error);
@@ -121,9 +105,6 @@ export async function listProducts(opts = {}) {
   }
 }
 
-/**
- * Listar solo los productos del usuario actual
- */
 export async function listMyProducts() {
   const token = getCurrentToken();
   
@@ -135,7 +116,6 @@ export async function listMyProducts() {
       },
     });
 
-    // ✅ ESTO ERA LO QUE FALTABA: Transformar los datos
     return data.map(transformProductToFrontend);
   } catch (error) {
     console.error('Error en listMyProducts:', error);
@@ -143,9 +123,6 @@ export async function listMyProducts() {
   }
 }
 
-/**
- * Obtener un producto específico por ID
- */
 export async function getProduct(id) {
   try {
     const product = await http(`${API_BASE_URL}/${id}`);
@@ -156,53 +133,21 @@ export async function getProduct(id) {
   }
 }
 
-/**
- * Crear un nuevo producto
- */
+
 export async function createProduct(product) {
-  const token = getCurrentToken();
-  const { id: userId } = token || {};
-  
-  // Transformar del formato frontend al formato backend
+  // Validación básica
+  if (!product.name?.trim()) {
+    throw new Error("El nombre del producto es obligatorio");
+  }
+
   const payload = {
-    nombre: product.name?.trim() || "",
+    nombre: product.name.trim(),
     descripcion: product.description?.trim() || "",
     precio: Number(product.price) || 0,
     stock: Number(product.stock) || 0,
-    ownerId: Number(userId) || 0,
+    categoriaId: product.category ? Number(product.category) : null,
+    images: product.image && product.image.trim() !== "" ? [product.image] : []
   };
-
-  // Campos opcionales
-  if (product.originalPrice !== undefined) {
-    payload.precioOriginal = Number(product.originalPrice);
-  }
-  if (product.category !== undefined && product.category !== "") {
-    payload.categoriaId = Number(product.category);
-  }
-  if (product.brand !== undefined) {
-    payload.marca = product.brand.trim();
-  }
-  if (product.rating !== undefined) {
-    payload.rating = Number(product.rating);
-  }
-  if (product.reviews !== undefined) {
-    payload.reviews = Number(product.reviews);
-  }
-  if (product.public !== undefined) {
-    payload.public = product.public;
-  }
-  if (product.tax !== undefined) {
-    payload.tax = Number(product.tax);
-  }
-  if (product.cuotas !== undefined) {
-    payload.cuotas = Number(product.cuotas);
-  }
-  if (product.fee !== undefined) {
-    payload.fee = Number(product.fee);
-  }
-  if (product.image !== undefined) {
-    payload.image = product.image;
-  }
 
   try {
     const result = await http(API_BASE_URL, { 
@@ -211,34 +156,26 @@ export async function createProduct(product) {
     });
     return result;
   } catch (error) {
-    console.error('Error en createProduct:', error);
+    console.error(' Error en createProduct:', error);
     throw error;
   }
 }
 
-/**
- * Actualizar producto (PATCH parcial)
- */
+
 export async function updateProduct(id, partial) {
-  // Transformar campos del frontend al backend si existen
   const payload = {};
   
   if (partial.name !== undefined) payload.nombre = partial.name.trim();
   if (partial.description !== undefined) payload.descripcion = partial.description.trim();
   if (partial.price !== undefined) payload.precio = Number(partial.price);
-  if (partial.originalPrice !== undefined) payload.precioOriginal = Number(partial.originalPrice);
   if (partial.stock !== undefined) payload.stock = Number(partial.stock);
   if (partial.category !== undefined) payload.categoriaId = Number(partial.category);
-  if (partial.brand !== undefined) payload.marca = partial.brand.trim();
-  if (partial.rating !== undefined) payload.rating = Number(partial.rating);
-  if (partial.reviews !== undefined) payload.reviews = Number(partial.reviews);
-  if (partial.public !== undefined) payload.public = partial.public;
-  if (partial.tax !== undefined) payload.tax = Number(partial.tax);
-  if (partial.cuotas !== undefined) payload.cuotas = Number(partial.cuotas);
-  if (partial.fee !== undefined) payload.fee = Number(partial.fee);
-  if (partial.image !== undefined) payload.image = partial.image;
+  
+  if (partial.image !== undefined && partial.image.trim() !== "") {
+    payload.images = [partial.image];
+  }
 
-  console.log('Payload a enviar:', JSON.stringify(payload));
+  console.log('Payload actualización:', JSON.stringify(payload, null, 2));
   
   try {
     const result = await http(`${API_BASE_URL}/${id}`, { 
@@ -252,9 +189,6 @@ export async function updateProduct(id, partial) {
   }
 }
 
-/**
- * Eliminar un producto
- */
 export async function deleteProduct(id) {
   try {
     const result = await http(`${API_BASE_URL}/${id}`, { 
