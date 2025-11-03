@@ -51,9 +51,8 @@ public class ProductoController {
 
     //https://localhost:8080/api/productos con metodo POST http, enviar un body
     @PostMapping
-  
-    public ResponseEntity<ProductoDTO> addProducto(@RequestBody ProductoCreateDTO productoDTO) {
-        ProductoDTO producto = productoService.createProducto(productoDTO);
+    public ResponseEntity<ProductoDTO> addProducto(@RequestBody ProductoCreateDTO productoDTO, @AuthenticationPrincipal User user){
+        ProductoDTO producto = productoService.createProducto(productoDTO, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(producto);
     }    //https://localhost:8080/api/productos/1 con metodo put http, enviar un body
     

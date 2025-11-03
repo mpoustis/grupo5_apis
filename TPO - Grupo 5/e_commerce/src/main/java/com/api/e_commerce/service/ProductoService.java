@@ -32,7 +32,7 @@ public class ProductoService {
     private CategoryRepository categoryRepository;
 
     @Transactional
-    public ProductoDTO createProducto(ProductoCreateDTO dto) {
+    public ProductoDTO createProducto(ProductoCreateDTO dto, Long ownerId) {
         // Validar precio
         if (dto.getPrecio() <= 0) {
             throw new InvalidPriceException(dto.getPrecio());
@@ -43,7 +43,7 @@ public class ProductoService {
             throw new InvalidDataException("El stock inicial no puede ser negativo");
         }
 
-        User owner = usuarioService.getUserById(dto.getOwnerId());
+        User owner = usuarioService.getUserById(ownerId);
         Category categoria = categoryRepository.findById(dto.getCategoriaId())
             .orElseThrow(() -> new ResourceNotFoundException("Categoría", dto.getCategoriaId()));
 
