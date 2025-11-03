@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 1. SERVICIO DE BASE DE DATOS (MySQL)
   db:
     image: mysql:8.0
     container_name: mysql-db-ecommerce
@@ -13,30 +12,21 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
-  # 2. SERVICIO DE BACKEND (Spring Boot)
   backend:
-    # El contexto (context) es la carpeta 'e_commerce' dentro del directorio actual (TPO - Grupo 5/)
-    build:
-      context: ./e_commerce
-      dockerfile: Dockerfile  # Asume que el Dockerfile del Back está en e_commerce/
+    image: jlopezkorach/tpo-grupo5-backend:1.0
     container_name: spring-backend-ecommerce
     ports:
       - "8080:8080"
     depends_on:
       - db
 
-  # 3. SERVICIO DE FRONTEND (React/Nginx)
   frontend:
-    # El contexto (context) es el directorio actual (TPO - Grupo 5/)
-    build:
-      context: . 
-      # Usamos el Dockerfile que colocamos en la raíz de TPO - Grupo 5/
-      dockerfile: Dockerfile.frontend 
+    image: jlopezkorach/tpo-grupo5-frontend:1.0
     container_name: react-frontend-ecommerce
     ports:
       - "80:80"
     depends_on:
-      - backend # Depende del backend para que el proxy funcione correctamente
+      - backend
 
 volumes:
   mysql_data:
